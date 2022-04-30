@@ -6,8 +6,10 @@ import Vista.VentanaEmisor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 
-public class Controlador implements ActionListener {
+public class Controlador implements ActionListener, Observer {
 
     private IVista vista = null;
 
@@ -18,13 +20,23 @@ public class Controlador implements ActionListener {
         this.vista = new VentanaEmisor();
         this.vista.addActionListener(this);
 
-        emisor = new EmisorTCP();
-
-        emisor.EnviarEmergencia(vista.getTipoSolicitud(), vista.getHora(), vista.getUbicacion());
+        emisor = new EmisorTCP(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        emisor.EnviarEmergencia(vista.getTipoSolicitud(), vista.getHora(), vista.getUbicacion());
+        if (e.getActionCommand().equals("Enviar"))
+        {
+            emisor.EnviarEmergencia(vista.getTipoSolicitud(), vista.getFecha(), vista.getUbicacion());
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        String mensaje = (String)arg;
+        if (mensaje.equals("recibido"))
+        {
+            this.vista.Confirmacion();
+        }
     }
 }

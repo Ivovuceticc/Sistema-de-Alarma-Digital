@@ -1,11 +1,9 @@
 package Modelo;
 
-import Controlador.Controlador;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.rmi.server.ExportException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -39,11 +37,6 @@ public class ServidorTCP extends Observable implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean RespuestaEmisor(String rta)
-    {
-        return !rta.isEmpty();
     }
 
     public void run() {

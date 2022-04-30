@@ -36,7 +36,7 @@ public class Controlador implements ActionListener, WindowListener, Observer {
     public void update(Observable o, Object arg)
     {
         MensajeEmergencia mensaje = (MensajeEmergencia)arg;
-        vista.MostrarEmergencia(mensaje.getTipoEmergencia(),mensaje.getHorario(), mensaje.getDireccion());
+        vista.MostrarEmergencia(mensaje.getTipoEmergencia(),mensaje.getFecha(), mensaje.getUbicacion());
     }
 
     @Override

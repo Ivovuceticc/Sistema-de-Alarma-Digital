@@ -1,22 +1,20 @@
 package Vista;
 
-import Vista.Botones.ButtonEditor;
-import Vista.Botones.ButtonRenderer;
-
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.*;
 
-public class VentanaReceptor extends JDialog implements IVista {
+public class VentanaReceptor extends JFrame implements IVista {
     private JPanel contentPane;
     private JButton buttonSalir;
     private JTable table1;
     private JScrollPane scrollPane;
 
     public VentanaReceptor() {
-        this.pack();
-        this.setVisible(true);
-        //System.exit(0);
+        setTitle("Solicitud de emergencia");
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
         IniciarTabla();
 
@@ -26,7 +24,6 @@ public class VentanaReceptor extends JDialog implements IVista {
         buttonSalir.setActionCommand("Salir");
 
         setContentPane(contentPane);
-        setModal(true);
         getRootPane().setDefaultButton(buttonSalir);
 
         buttonSalir.addActionListener(new ActionListener() {
@@ -35,19 +32,18 @@ public class VentanaReceptor extends JDialog implements IVista {
                 //dispose();
             }
         });
-        // call onCancel() when cross is clicked
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 System.exit(0);
                 //dispose();
             }
         });
+        this.setVisible(true);
     }
 
     private void IniciarTabla()
     {
-        String[] columns = new String[] {"Tipo", "Ubicación", "Hora"};
+        String[] columns = new String[] {"Tipo", "Ubicación", "fecha"};
         String[][] data = new String[][]{};
 
         DefaultTableModel model = new DefaultTableModel(data,columns);
@@ -55,10 +51,10 @@ public class VentanaReceptor extends JDialog implements IVista {
     }
 
     @Override
-    public void MostrarEmergencia(String tipoEmergencia, String hora, String ubicacion)
+    public void MostrarEmergencia(String tipoEmergencia, String fecha, String ubicacion)
     {
         DefaultTableModel model = (DefaultTableModel) table1.getModel();
-        model.addRow(new Object[]{tipoEmergencia, ubicacion, hora});
+        model.addRow(new Object[]{tipoEmergencia, ubicacion, fecha});
 
         //table1.getColumn("Accion").setCellRenderer(new ButtonRenderer());
         //table1.getColumn("Accion").setCellEditor(new ButtonEditor(new JCheckBox()));

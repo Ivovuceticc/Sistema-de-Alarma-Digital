@@ -10,11 +10,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 public class Controlador implements ActionListener, Observer {
-
     private IVista vista = null;
-
     private EmisorTCP emisor;
-
     public Controlador()
     {
         this.vista = new VentanaEmisor();
@@ -22,7 +19,6 @@ public class Controlador implements ActionListener, Observer {
 
         emisor = new EmisorTCP(this);
     }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("Enviar"))
@@ -30,7 +26,6 @@ public class Controlador implements ActionListener, Observer {
             emisor.EnviarEmergencia(vista.getTipoSolicitud(), vista.getFecha(), vista.getUbicacion());
         }
     }
-
     @Override
     public void update(Observable o, Object arg) {
         String mensaje = (String)arg;

@@ -346,7 +346,7 @@ public class VentanaEmisor extends JFrame implements IVista
 
     @Override
     public String getUbicacion() {
-        return "numero";
+        return "independencia";
     }
 
     @Override

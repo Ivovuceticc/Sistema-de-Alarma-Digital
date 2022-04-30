@@ -8,7 +8,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 public class ServidorTCP extends Observable implements Runnable {
-
     private ServerSocket socketServidor = null;
     private Socket socketCliente = null;
     private BufferedReader entrada = null;
@@ -16,7 +15,6 @@ public class ServidorTCP extends Observable implements Runnable {
 
     private Thread hilo = null;
     private boolean ejecutarHilo;
-
     private String MensajeEmisor = "recibido";
 
     public ServidorTCP(Observer observador){
@@ -38,7 +36,6 @@ public class ServidorTCP extends Observable implements Runnable {
             e.printStackTrace();
         }
     }
-
     public void run() {
         try
         {
@@ -61,12 +58,12 @@ public class ServidorTCP extends Observable implements Runnable {
         }
         catch(Exception e)
         {
-
         }
     }
+
     private void IniciarServidor() throws IOException
     {
-        socketServidor = new ServerSocket(1234);
+        socketServidor = new ServerSocket(1111);
     }
     private void CerrarServidor() throws IOException
     {

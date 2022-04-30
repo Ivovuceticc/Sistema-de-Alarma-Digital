@@ -12,9 +12,8 @@ import java.util.Observer;
  * @author user
  */
 public class EmisorTCP extends Observable {
-
     private String IP = "192.168.0.16";
-    private String Puerto = "1234";
+    private String Puerto = "1111";
     private String MensajeEmisor = "recibido";
 
     public EmisorTCP(Observer observador)
@@ -22,7 +21,7 @@ public class EmisorTCP extends Observable {
         addObserver(observador);
     }
 
-    public void EnviarEmergencia(String tipoSolicitud, String hora, String ubicacion)
+    public void EnviarEmergencia(String tipoSolicitud, String fecha, String ubicacion)
     {
         Socket socketCliente = null;
 
@@ -35,36 +34,24 @@ public class EmisorTCP extends Observable {
             socketCliente = new Socket(IP, Integer.parseInt(Puerto));
             entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
             salida = new PrintWriter(socketCliente.getOutputStream(), true);
-        }
-        catch(Exception e){
-            System.out.println("La ip ingresada es inválida...");
-        }
 
-        try{
-            salida.println(tipoSolicitud+"#"+hora+"#"+ubicacion);
-        }
-        catch(Exception e){
-        }
+            //Manda la emergencia
+            salida.println(tipoSolicitud+"#"+fecha+"#"+ubicacion);
 
-        try{
-            while(true){
-                String mensaje = entrada.readLine();
-                if (MensajeEmisor.equals(mensaje))
-                {
-                    NotificarEmergencia();
-                }
-                break;
+            //Recibe la confirmacion
+            String mensaje = entrada.readLine();
+            if (MensajeEmisor.equals(mensaje))
+            {
+                NotificarEmergencia();
             }
-        }
-        catch(Exception e){
-        }
-        try {
+
             salida.close();
             entrada.close();
             sc.close();
             socketCliente.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        }
+        catch(Exception e){
         }
     }
     private void NotificarEmergencia()

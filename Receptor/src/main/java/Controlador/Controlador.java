@@ -15,7 +15,6 @@ import java.util.Observer;
 public class Controlador implements ActionListener, WindowListener, Observer {
 
     private IVista vista = null;
-
     private ServidorTCP receptor;
 
     public Controlador()

@@ -1,22 +1,26 @@
 package Modelo;
 
-import javax.swing.*;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  *
  * @author user
  */
-public class EmisorTCP {
+public class EmisorTCP extends Observable {
 
     private String IP = "192.168.0.16";
     private String Puerto = "1234";
+    private String MensajeEmisor = "recibido";
+
+    public EmisorTCP(Observer observador)
+    {
+        addObserver(observador);
+    }
 
     public void EnviarEmergencia(String tipoSolicitud, String hora, String ubicacion)
     {
@@ -37,7 +41,7 @@ public class EmisorTCP {
         }
 
         try{
-            salida.println(tipoSolicitud);
+            salida.println(tipoSolicitud+"#"+hora+"#"+ubicacion);
         }
         catch(Exception e){
         }
@@ -45,7 +49,10 @@ public class EmisorTCP {
         try{
             while(true){
                 String mensaje = entrada.readLine();
-                JOptionPane.showMessageDialog(null,mensaje);
+                if (MensajeEmisor.equals(mensaje))
+                {
+                    NotificarEmergencia();
+                }
                 break;
             }
         }
@@ -59,5 +66,10 @@ public class EmisorTCP {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    private void NotificarEmergencia()
+    {
+        setChanged();
+        notifyObservers(MensajeEmisor);
     }
 }

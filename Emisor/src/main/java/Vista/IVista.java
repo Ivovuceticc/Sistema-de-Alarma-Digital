@@ -6,6 +6,6 @@ public interface IVista {
     String getTipoSolicitud();
     String getFecha();
     String getUbicacion();
-    void Confirmacion();
+    void Confirmacion(String mensaje);
     void addActionListener(ActionListener listenner);
 }

@@ -28,10 +28,6 @@ public class Controlador implements ActionListener, Observer {
     }
     @Override
     public void update(Observable o, Object arg) {
-        String mensaje = (String)arg;
-        if (mensaje.equals("recibido"))
-        {
-            this.vista.Confirmacion();
-        }
+        this.vista.Confirmacion((String)arg);
     }
 }

@@ -350,8 +350,8 @@ public class VentanaEmisor extends JFrame implements IVista
         btn_Enviar.addActionListener(listenner);
     }
     @Override
-    public void Confirmacion()
+    public void Confirmacion(String mensaje)
     {
-        JOptionPane.showMessageDialog(null,"Mensaje recibido por el receptor!");
+        JOptionPane.showMessageDialog(null,mensaje);
     }
 }

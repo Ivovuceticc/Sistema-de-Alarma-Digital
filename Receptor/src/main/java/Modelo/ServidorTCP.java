@@ -16,6 +16,7 @@ public class ServidorTCP extends Observable implements Runnable {
     private Thread hilo = null;
     private boolean ejecutarHilo;
     private String MensajeEmisor = "recibido";
+    private String MensajeEmisorF = "Solicitud invalida";
 
     public ServidorTCP(Observer observador){
         addObserver(observador);
@@ -39,6 +40,7 @@ public class ServidorTCP extends Observable implements Runnable {
     public void run() {
         try
         {
+            String tipoSolicitud = InformacionConfig.getInstance().getTipoSolicitud();
             IniciarServidor();
             do
             {
@@ -47,8 +49,14 @@ public class ServidorTCP extends Observable implements Runnable {
                 salida = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socketCliente.getOutputStream())), true);
 
                 String rta = entrada.readLine();
-                NotificarEmergencia(rta);
-                salida.println(MensajeEmisor);
+                MensajeEmergencia mensaje = new MensajeEmergencia(rta);
+
+                if(mensaje.getTipoEmergencia().equalsIgnoreCase(tipoSolicitud)) {
+                    NotificarEmergencia(mensaje);
+                    salida.println(MensajeEmisor);
+                }
+                else
+                    salida.println(MensajeEmisorF);
 
                 entrada.close();
                 salida.close();
@@ -63,16 +71,16 @@ public class ServidorTCP extends Observable implements Runnable {
 
     private void IniciarServidor() throws IOException
     {
-        socketServidor = new ServerSocket(1111);
+        socketServidor = new ServerSocket(Integer.parseInt(InformacionConfig.getInstance().getPuerto()));
     }
     private void CerrarServidor() throws IOException
     {
         socketServidor.close();
     }
 
-    private void NotificarEmergencia(String mensaje)
+    private void NotificarEmergencia(MensajeEmergencia mensaje)
     {
         setChanged();
-        notifyObservers(new MensajeEmergencia(mensaje));
+        notifyObservers(mensaje);
     }
 }

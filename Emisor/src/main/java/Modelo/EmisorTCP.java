@@ -12,7 +12,7 @@ import java.util.Observer;
  * @author user
  */
 public class EmisorTCP extends Observable {
-    private String IP = "192.168.0.16";
+    private String IP = "192.168.0.177";
     private String Puerto = "1111";
     private String MensajeEmisor = "recibido";
 

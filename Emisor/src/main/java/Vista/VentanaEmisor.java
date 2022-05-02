@@ -78,8 +78,8 @@ public class VentanaEmisor extends JFrame implements IVista
         this.contentPane = new PanelConImagen();
         this.contentPane.setOpaque(false);
         this.contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-        //this.contentPane.setFondo(new ImageIcon("../Imagenes/Fondo2.png"));
-        //this.contentPane.setFondo(new ImageIcon("Imagenes/Fondo2.png"));//"..//Imagenes//Fondo2.png"));
+        this.contentPane.setFondo(new ImageIcon("../Imagenes/Fondo2.png"));
+        //this.contentPane.setFondo(new ImageIcon("Fondo2.png"));//"..//Imagenes//Fondo2.png"));
         setContentPane(this.contentPane);
         this.contentPane.setLayout(new GridLayout(3, 0, 0, 0));
 

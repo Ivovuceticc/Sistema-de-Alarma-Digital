@@ -12,16 +12,24 @@ import java.util.Observer;
  * @author user
  */
 public class EmisorTCP extends Observable {
-    private String IP = "192.168.0.177";
-    private String Puerto = "1111";
-    private String MensajeEmisor = "recibido";
+    Ubicacion ubicacion;
+
+    private String MensajeCorrecto = "recibido";
+    private String MensajeNegativo = "No se pudo recibir";
 
     public EmisorTCP(Observer observador)
     {
+        ubicacion = InformacionConfig.getInstance().getUbicacion();
         addObserver(observador);
+
     }
 
-    public void EnviarEmergencia(String tipoSolicitud, String fecha, String ubicacion)
+    private void lecturaUbicacion()
+    {
+
+    }
+
+    public void EnviarEmergencia(String tipoSolicitud, String fecha)
     {
         Socket socketCliente = null;
 
@@ -31,19 +39,16 @@ public class EmisorTCP extends Observable {
         BufferedReader sc = new BufferedReader( new InputStreamReader(System.in));
 
         try{
-            socketCliente = new Socket(IP, Integer.parseInt(Puerto));
+            socketCliente = new Socket(ubicacion.getIP(), ubicacion.getPuerto());
             entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
             salida = new PrintWriter(socketCliente.getOutputStream(), true);
 
             //Manda la emergencia
-            salida.println(tipoSolicitud+"#"+fecha+"#"+ubicacion);
+            salida.println(tipoSolicitud+"#"+fecha+"#"+ubicacion.getDireccion());
 
             //Recibe la confirmacion
             String mensaje = entrada.readLine();
-            if (MensajeEmisor.equals(mensaje))
-            {
-                NotificarEmergencia();
-            }
+            NotificarEmergencia(MensajeCorrecto.equals(mensaje)? MensajeCorrecto:MensajeNegativo);
 
             salida.close();
             entrada.close();
@@ -54,9 +59,9 @@ public class EmisorTCP extends Observable {
         catch(Exception e){
         }
     }
-    private void NotificarEmergencia()
+    private void NotificarEmergencia(String mensaje)
     {
         setChanged();
-        notifyObservers(MensajeEmisor);
+        notifyObservers(mensaje);
     }
 }

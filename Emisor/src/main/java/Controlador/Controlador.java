@@ -23,7 +23,7 @@ public class Controlador implements ActionListener, Observer {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("Enviar"))
         {
-            emisor.EnviarEmergencia(vista.getTipoSolicitud(), vista.getFecha(), vista.getUbicacion());
+            emisor.EnviarEmergencia(vista.getTipoSolicitud(), vista.getFecha());
         }
     }
     @Override

@@ -1,6 +1,6 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "no" ?>
 <ubicacion>
-    <ip>192.168.0.18</ip>
+    <ip>192.168.0.219</ip>
     <puerto>1111</puerto>
     <direccion>Pampa 2626</direccion>
 </ubicacion>

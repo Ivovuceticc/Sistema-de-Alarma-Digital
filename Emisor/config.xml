@@ -1,5 +1,5 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "no" ?>
-<<<<<<< HEAD
+
 <config>
     <ubicacion>
         <direccion>Pampa 2626</direccion>
@@ -19,10 +19,3 @@
         </Receptor>
     </Receptores>
 </config>
-=======
-<ubicacion>
-    <ip>192.168.0.65</ip>
-    <puerto>1111</puerto>
-    <direccion>Pampa 2626</direccion>
-</ubicacion>
->>>>>>> 98bdbd81fa255ff976a35279126c0f5349260b78

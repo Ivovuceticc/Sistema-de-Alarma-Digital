@@ -342,10 +342,10 @@ public class VentanaEmisor extends JFrame implements IVista
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
-    @Override
-    public String getUbicacion() {
-        return "independencia";
-    }
+//    @Override
+//    public String getUbicacion() {
+//        return "independencia";
+//    }
     @Override
     public void addActionListener(ActionListener listenner) {
         btn_Enviar.addActionListener(listenner);

@@ -15,6 +15,10 @@ public class ServidorTCP extends Observable implements Runnable {
 
     private Thread hilo = null;
     private boolean ejecutarHilo;
+
+    private boolean aceptaEM = false;
+    private boolean aceptaI = false;
+    private boolean aceptaP = false;
     private String MensajeEmisor = "recibido";
     private String MensajeEmisorF = "Solicitud invalida";
 
@@ -40,7 +44,6 @@ public class ServidorTCP extends Observable implements Runnable {
     public void run() {
         try
         {
-            String tipoSolicitud = InformacionConfig.getInstance().getTipoSolicitud();
             IniciarServidor();
             do
             {
@@ -50,13 +53,22 @@ public class ServidorTCP extends Observable implements Runnable {
 
                 String rta = entrada.readLine();
                 MensajeEmergencia mensaje = new MensajeEmergencia(rta);
-
+                String tipoSolicitud = mensaje.getTipoEmergencia();
+                /*
                 if(mensaje.getTipoEmergencia().equalsIgnoreCase(tipoSolicitud)) {
                     NotificarEmergencia(mensaje);
                     salida.println(MensajeEmisor);
                 }
                 else
                     salida.println(MensajeEmisorF);
+                */
+                if((tipoSolicitud.equalsIgnoreCase("emergencia") && this.aceptaEM) || (tipoSolicitud.equalsIgnoreCase("Incendio") && this.aceptaI) || (tipoSolicitud.equalsIgnoreCase("Policia") && this.aceptaP)){
+                    NotificarEmergencia(mensaje);
+                    salida.println(MensajeEmisor);
+                }
+                else
+                    salida.println(MensajeEmisorF);
+
 
                 entrada.close();
                 salida.close();
@@ -82,5 +94,15 @@ public class ServidorTCP extends Observable implements Runnable {
     {
         setChanged();
         notifyObservers(mensaje);
+    }
+
+    public void setAceptaEM(boolean resp){
+        this.aceptaEM = resp;
+    }
+    public void setAceptaI(boolean resp){
+        this.aceptaI = resp;
+    }
+    public void setAceptaP(boolean resp){
+        this.aceptaP = resp;
     }
 }

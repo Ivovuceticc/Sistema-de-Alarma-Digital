@@ -5,25 +5,22 @@ import Modelo.Alarma;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import java.applet.Applet;
-import java.applet.AudioClip;
-import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.net.URL;
 
 public class VentanaReceptor extends JFrame implements IVista {
     private JPanel contentPane;
     private JButton buttonSalir;
     private JTable table1;
+    private JButton buttonAjustes;
     private JScrollPane scrollPane;
     private Alarma alarma;
 
     public VentanaReceptor() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         setTitle("Solicitud de emergencia");
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        this.setResizable(false);
 
         alarma = new Alarma();
 
@@ -33,6 +30,7 @@ public class VentanaReceptor extends JFrame implements IVista {
         setSize(800,600);
 
         buttonSalir.setActionCommand("Salir");
+        buttonAjustes.setActionCommand("Ajustes");
 
         setContentPane(contentPane);
         getRootPane().setDefaultButton(buttonSalir);
@@ -50,6 +48,7 @@ public class VentanaReceptor extends JFrame implements IVista {
                 //dispose();
             }
         });
+
         this.setVisible(true);
     }
 
@@ -85,5 +84,6 @@ public class VentanaReceptor extends JFrame implements IVista {
 
     @Override
     public void addActionListener(ActionListener listenner) {
+        this.buttonAjustes.addActionListener(listenner);
     }
 }

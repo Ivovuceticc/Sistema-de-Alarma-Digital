@@ -3,6 +3,7 @@ package Controlador;
 import Modelo.MensajeEmergencia;
 import Modelo.ServidorTCP;
 import Vista.IVista;
+import Vista.VentanaAjustes;
 import Vista.VentanaReceptor;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -17,13 +18,14 @@ import java.util.Observer;
 
 public class Controlador implements ActionListener, WindowListener, Observer {
 
-    private IVista vista = null;
+    private IVista vistaReceptor = null;
+    private VentanaAjustes vistaAjustes = null;
     private ServidorTCP receptor;
 
     public Controlador() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        this.vista = new VentanaReceptor();
-        this.vista.addActionListener(this);
-        this.vista.addWindowListener(this);
+        this.vistaReceptor = new VentanaReceptor();
+        this.vistaReceptor.addActionListener(this);
+        this.vistaReceptor.addWindowListener(this);
 
         receptor = new ServidorTCP(this);
         receptor.Iniciar();
@@ -31,6 +33,16 @@ public class Controlador implements ActionListener, WindowListener, Observer {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(e.getActionCommand().equals("Ajustes")){
+            this.vistaAjustes = new VentanaAjustes();
+            this.vistaAjustes.addActionListener(this);
+        }
+        else if(e.getActionCommand().equals("Aplicar")){
+            receptor.setAceptaEM(vistaAjustes.getEmergenciaM());
+            receptor.setAceptaI(vistaAjustes.getIncendio());
+            receptor.setAceptaP(vistaAjustes.getPolicia());
+            this.vistaAjustes.setVisible(false);
+        }
     }
 
     @Override
@@ -38,7 +50,7 @@ public class Controlador implements ActionListener, WindowListener, Observer {
     {
         MensajeEmergencia mensaje = (MensajeEmergencia)arg;
         try {
-            vista.MostrarEmergencia(mensaje.getTipoEmergencia(),mensaje.getFecha(), mensaje.getUbicacion());
+            vistaReceptor.MostrarEmergencia(mensaje.getTipoEmergencia(),mensaje.getFecha(), mensaje.getUbicacion());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -23,6 +23,7 @@ public class Controlador implements ActionListener, WindowListener, Observer {
     private IVistaAjustes vistaAjustes = null;
     private ServidorTCP receptor;
 
+    private boolean receptorIniciado = false;
     public Controlador() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         this.vistaReceptor = new VentanaReceptor();
         this.vistaReceptor.addActionListener(this);
@@ -30,10 +31,9 @@ public class Controlador implements ActionListener, WindowListener, Observer {
 
         this.vistaAjustes = new VentanaAjustes();
         this.vistaAjustes.addActionListener(this);
-        this.vistaAjustes.Mostrar(false);
+        this.vistaAjustes.Mostrar(true);
 
         receptor = new ServidorTCP(this);
-        receptor.Iniciar();
     }
 
     @Override
@@ -42,10 +42,20 @@ public class Controlador implements ActionListener, WindowListener, Observer {
             this.vistaAjustes.Mostrar(true);
         }
         else if(e.getActionCommand().equals("Aplicar")){
+            IniciarReceptor();
+            this.vistaAjustes.Mostrar(false);
+        }
+    }
+    private void IniciarReceptor()
+    {
+        if (!receptorIniciado)
+        {
             receptor.setAceptaEM(vistaAjustes.getEmergenciaM());
             receptor.setAceptaI(vistaAjustes.getIncendio());
             receptor.setAceptaP(vistaAjustes.getPolicia());
-            this.vistaAjustes.Mostrar(false);
+            receptor.Iniciar();
+            receptorIniciado = true;
+            this.vistaAjustes.BloquearTipEmergencia();
         }
     }
 

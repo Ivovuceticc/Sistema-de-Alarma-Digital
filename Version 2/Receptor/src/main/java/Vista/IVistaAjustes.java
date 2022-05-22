@@ -9,5 +9,6 @@ public interface IVistaAjustes {
     boolean getPolicia();
 
     void Mostrar(boolean visible);
+    void BloquearTipEmergencia();
     void addActionListener(ActionListener listenner);
 }

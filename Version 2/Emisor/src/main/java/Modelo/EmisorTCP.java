@@ -52,7 +52,7 @@ public class EmisorTCP extends Observable {
 
 
                 //Manda la emergencia
-                salida.println("0-" + tipoSolicitud + "#" + fecha + "#" + ubicacion.getDireccion());
+                salida.println("0#" + tipoSolicitud + "#" + ubicacion.getDireccion());
 
                 //Recibe la confirmacion
                 String mensaje = entrada.readLine();

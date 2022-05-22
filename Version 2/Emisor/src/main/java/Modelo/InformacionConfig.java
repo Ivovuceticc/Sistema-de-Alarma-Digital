@@ -47,7 +47,7 @@ public class InformacionConfig {
 
             String ipserver = eElement.getElementsByTagName("ip").item(0).getTextContent();
             String puerto = eElement.getElementsByTagName("puerto").item(0).getTextContent();
-            String ubicacion = eElement.getElementsByTagName("direccion").item(0).getTextContent();
+            String ubicacion = eElement.getElementsByTagName("ubicacion").item(0).getTextContent();
 
             this.servidor = new Servidor(ipserver, Integer.parseInt(puerto));
             this.ubicacion = new Ubicacion(ubicacion);

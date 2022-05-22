@@ -60,4 +60,12 @@ public class VentanaAjustes extends JFrame implements IVistaAjustes{
     {
         this.setVisible(visible);
     }
+
+    @Override
+    public void BloquearTipEmergencia()
+    {
+        RdbuttonEmergenciaM.setEnabled(false);
+        RdbuttonIncendio.setEnabled(false);
+        RdbuttonPolicia.setEnabled(false);
+    }
 }

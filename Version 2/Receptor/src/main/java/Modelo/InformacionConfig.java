@@ -12,7 +12,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class InformacionConfig {
-    private String puerto;
+    private int puertoReceptor;
+    private String ipServidor;
+    private int puertoServidor;
     private String tipoSolicitud;
     private static InformacionConfig instance = null;
 
@@ -36,24 +38,38 @@ public class InformacionConfig {
             Document document = db.parse(file);
             document.getDocumentElement().normalize();
 
-            NodeList nList = document.getElementsByTagName("informacion");
+            //NodeList nList = document.getElementsByTagName("config");
 
-            Node nNode = nList.item(0);
-            Element eElement = (Element) nNode;
-            /* Muestra ok
-            System.out.println("Tipo de solicitud : " + eElement.getElementsByTagName("tiposolicitud").item(0).getTextContent());
-            System.out.println("Puerto : " + eElement.getElementsByTagName("puerto").item(0).getTextContent());
-            */
-            //this.tipoSolicitud = eElement.getElementsByTagName("tiposolicitud").item(0).getTextContent();
-            this.puerto = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+            NodeList nList = document.getElementsByTagName("Receptor");
+            Element eElement = (Element) nList.item(0);
+
+            String puertoReceptor = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+
+            nList = document.getElementsByTagName("Servidor");
+            eElement = (Element) nList.item(0);
+
+            String ipServidor = eElement.getElementsByTagName("ip").item(0).getTextContent();
+            String puertoServidor = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+
+            this.puertoReceptor = Integer.parseInt(puertoReceptor);
+
+            this.ipServidor = ipServidor;
+            this.puertoServidor = Integer.parseInt(puertoServidor);
+
         }
         catch(IOException | ParserConfigurationException | SAXException e) {
             System.out.println(e);
         }
     }
 
-    public String getPuerto(){
-        return this.puerto;
+    public int getPuertoReceptor(){
+        return this.puertoReceptor;
+    }
+    public String getIpServidor(){
+        return this.ipServidor;
+    }
+    public int getPuertoServidor(){
+        return this.puertoServidor;
     }
 
     public String getTipoSolicitud(){

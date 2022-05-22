@@ -21,11 +21,18 @@ public class ServidorTCP extends Observable implements Runnable {
     private boolean aceptaEM = false;
     private boolean aceptaI = false;
     private boolean aceptaP = false;
-    private String MensajeEmisor = "recibido";
-    private String MensajeEmisorF = "Solicitud invalida";
+    private String MensajeEmisor = "3";
+
+    private Observer observador;
+
+    private String getEmergencias()
+    {
+        return (aceptaEM? "1":"0") + (aceptaI?"1":"0")+ (aceptaP?"1":"0");
+    }
 
     public ServidorTCP(Observer observador){
-        addObserver(observador);
+        this.observador = observador;
+        //addObserver(observador);
     }
 
     public void Iniciar()
@@ -62,7 +69,7 @@ public class ServidorTCP extends Observable implements Runnable {
             entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
             salida = new PrintWriter(socketCliente.getOutputStream(), true);
 
-            salida.println("1|"+InformacionConfig.getInstance().getPuertoReceptor()+"|001");
+            salida.println("1#"+InformacionConfig.getInstance().getPuertoReceptor()+"#"+getEmergencias());
 
             servidorConectado = true;
             salida.close();
@@ -84,21 +91,13 @@ public class ServidorTCP extends Observable implements Runnable {
                 {
                     socketCliente = socketServidor.accept();
                     entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-                    salida = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socketCliente.getOutputStream())), true);
+                    salida = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socketCliente.getOutputStream())),true);
 
                     String rta = entrada.readLine();
                     MensajeEmergencia mensaje = new MensajeEmergencia(rta);
-                    String tipoSolicitud = mensaje.getTipoEmergencia();
 
-                    if((tipoSolicitud.equalsIgnoreCase("emergencia") && this.aceptaEM) || (tipoSolicitud.equalsIgnoreCase("Incendio") && this.aceptaI) || (tipoSolicitud.equalsIgnoreCase("Policia") && this.aceptaP)){
-                        NotificarEmergencia(mensaje);
-                        salida.println(MensajeEmisor);
-                    }
-                    else
-                    {
-                        salida.println(MensajeEmisorF);
-                    }
-
+                    NotificarEmergencia(mensaje);
+                    salida.println(MensajeEmisor);
 
                     entrada.close();
                     salida.close();
@@ -118,12 +117,12 @@ public class ServidorTCP extends Observable implements Runnable {
     private void NotificarEmergencia(MensajeEmergencia mensaje)
     {
         setChanged();
-        notifyObservers(mensaje);
+        observador.update(this, mensaje);
     }
     private void NotificarErrorServidor()
     {
         setChanged();
-        notifyObservers("No se ha podido conectarse con el servidor");
+        observador.update(null, "No es posible conectarse con el servidor");
     }
 
     public void setAceptaEM(boolean resp){

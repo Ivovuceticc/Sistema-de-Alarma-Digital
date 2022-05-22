@@ -10,4 +10,6 @@ public interface IVista {
     void MostrarEmergencia(String tipoEmergencia, String fecha, String ubicacion) throws IOException, LineUnavailableException, UnsupportedAudioFileException;
     void addActionListener(ActionListener listenner);
     void addWindowListener(WindowListener windowListener);
+
+    void MostrarCartel(String mensaje);
 }

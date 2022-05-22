@@ -66,20 +66,21 @@ public class VentanaReceptor extends JFrame implements IVista {
         DefaultTableModel model = (DefaultTableModel) table1.getModel();
         model.addRow(new Object[]{tipoEmergencia, ubicacion, fecha});
         nuevaAlerta(ubicacion);
-
-
-        //table1.getColumn("Accion").setCellRenderer(new ButtonRenderer());
-        //table1.getColumn("Accion").setCellEditor(new ButtonEditor(new JCheckBox()));
     }
 
 
     public void nuevaAlerta(String mensaje) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         alarma.dispararAlarma();
         int optionType = JOptionPane.OK_OPTION;
-        JOptionPane.showMessageDialog(null,"Alerta de nueva emergencia en "+mensaje,"Nueva Emeergencia",JOptionPane.WARNING_MESSAGE);
+        MostrarCartel("Alerta de nueva emergencia en "+mensaje);
             alarma.frenarAlarma();
 
 
+    }
+    @Override
+    public void MostrarCartel(String mensaje)
+    {
+        JOptionPane.showMessageDialog(null,mensaje,"Atencion!",JOptionPane.WARNING_MESSAGE);
     }
 
     @Override

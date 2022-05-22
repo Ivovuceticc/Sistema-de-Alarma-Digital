@@ -62,9 +62,16 @@ public class Controlador implements ActionListener, WindowListener, Observer {
     @Override
     public void update(Observable o, Object arg)
     {
-        MensajeEmergencia mensaje = (MensajeEmergencia)arg;
         try {
-            vistaReceptor.MostrarEmergencia(mensaje.getTipoEmergencia(),mensaje.getFecha(), mensaje.getUbicacion());
+            if (o == null)
+            {
+                vistaReceptor.MostrarCartel((String)arg);
+            }
+            else
+            {
+                MensajeEmergencia mensaje = (MensajeEmergencia)arg;
+                vistaReceptor.MostrarEmergencia(mensaje.getTipoEmergencia(),mensaje.getFecha(), mensaje.getUbicacion());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

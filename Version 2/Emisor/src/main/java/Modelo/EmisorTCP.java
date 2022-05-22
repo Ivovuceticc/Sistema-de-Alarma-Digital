@@ -34,7 +34,6 @@ public class EmisorTCP extends Observable {
 
     public void EnviarEmergencia(String tipoSolicitud, String fecha)
     {
-        boolean encontrado = false;
         Socket socketCliente = null;
 
         BufferedReader entrada = null; //leer texto de secuencia de entrada
@@ -56,10 +55,14 @@ public class EmisorTCP extends Observable {
 
                 //Recibe la confirmacion
                 String mensaje = entrada.readLine();
-                //NotificarEmergencia(MensajeCorrecto.equals(mensaje) ? MensajeCorrecto : MensajeNegativo);
-                if (!encontrado && MensajeCorrecto.equals(mensaje))
+
+                if (MensajeCorrecto.equals(mensaje))
                 {
-                    encontrado = true;
+                    NotificarEmergencia(MensajeCorrecto);
+                }
+                else
+                {
+                    NotificarEmergencia(MensajeNegativo);
                 }
 
                 salida.close();
@@ -68,11 +71,7 @@ public class EmisorTCP extends Observable {
                 socketCliente.close();
             } catch (Exception e) {
                 System.out.println("Tiempo de espera agotado para conectar al host");
-        }
-
-        if (encontrado)
-        {
-            NotificarEmergencia(encontrado ? MensajeCorrecto : MensajeNegativo);
+                NotificarEmergencia("No es posible conectarse con el servidor");
         }
     }
     private void NotificarEmergencia(String mensaje)

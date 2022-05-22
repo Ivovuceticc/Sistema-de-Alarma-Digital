@@ -1,0 +1,10 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "no" ?>
+
+<config>
+	<server>
+		<ip>192.168.0.11</ip>
+		<puerto>1111</puerto>
+	</server>
+
+	<puertoreceptor>1111</puertoreceptor>
+</config>

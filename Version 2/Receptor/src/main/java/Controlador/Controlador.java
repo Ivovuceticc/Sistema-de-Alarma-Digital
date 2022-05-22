@@ -1,7 +1,7 @@
 package Controlador;
 
 import Modelo.MensajeEmergencia;
-import Modelo.ServidorTCP;
+import Modelo.ReceptorTCP;
 import Vista.IVista;
 import Vista.IVistaAjustes;
 import Vista.VentanaAjustes;
@@ -21,7 +21,7 @@ public class Controlador implements ActionListener, WindowListener, Observer {
 
     private IVista vistaReceptor = null;
     private IVistaAjustes vistaAjustes = null;
-    private ServidorTCP receptor;
+    private ReceptorTCP receptor;
 
     private boolean receptorIniciado = false;
     public Controlador() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
@@ -33,7 +33,7 @@ public class Controlador implements ActionListener, WindowListener, Observer {
         this.vistaAjustes.addActionListener(this);
         this.vistaAjustes.Mostrar(true);
 
-        receptor = new ServidorTCP(this);
+        receptor = new ReceptorTCP(this);
     }
 
     @Override

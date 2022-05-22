@@ -115,14 +115,6 @@ public class VentanaEmisor extends JFrame implements IVista
         this.panel_Izq_conexion.add(this.panel_Derecho, BorderLayout.EAST);
         this.panel_Derecho.setLayout(new BorderLayout(0, 0));
 
-        /*this.chckbxNewCheckBox = new JCheckBox("Desconectado");
-        this.chckbxNewCheckBox.setOpaque(false);
-        this.chckbxNewCheckBox.setBackground(Color.WHITE);
-        this.chckbxNewCheckBox.setFocusPainted(false);
-        this.chckbxNewCheckBox.setFont(new Font("Tahoma", Font.PLAIN, 18));
-        this.chckbxNewCheckBox.setForeground(Color.RED);
-        this.panel_Derecho.add(this.chckbxNewCheckBox, BorderLayout.CENTER);*/
-
         this.panel_Centro = new JPanel();
         this.panel_Centro.setOpaque(false);
         this.panel_Centro.setBackground(Color.WHITE);

@@ -15,7 +15,6 @@ public class InformacionConfig {
     private int puertoReceptor;
     private String ipServidor;
     private int puertoServidor;
-    private String tipoSolicitud;
     private static InformacionConfig instance = null;
 
     private InformacionConfig(){
@@ -72,7 +71,4 @@ public class InformacionConfig {
         return this.puertoServidor;
     }
 
-    public String getTipoSolicitud(){
-        return this.tipoSolicitud;
-    }
 }

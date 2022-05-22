@@ -8,11 +8,6 @@ public class Ubicacion {
     public Ubicacion(String direccion) {
         this.direccion = direccion;
     }
-
-
-    public Ubicacion() {
-    }
-
     public String getDireccion() {
         return direccion;
     }

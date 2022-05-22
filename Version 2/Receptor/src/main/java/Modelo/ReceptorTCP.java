@@ -9,7 +9,7 @@ import java.net.SocketAddress;
 import java.util.Observable;
 import java.util.Observer;
 
-public class ServidorTCP extends Observable implements Runnable {
+public class ReceptorTCP extends Observable implements Runnable {
     private ServerSocket socketServidor = null;
     private Socket socketCliente = null;
     private BufferedReader entrada = null;
@@ -30,7 +30,7 @@ public class ServidorTCP extends Observable implements Runnable {
         return (aceptaEM? "1":"0") + (aceptaI?"1":"0")+ (aceptaP?"1":"0");
     }
 
-    public ServidorTCP(Observer observador){
+    public ReceptorTCP(Observer observador){
         this.observador = observador;
         //addObserver(observador);
     }

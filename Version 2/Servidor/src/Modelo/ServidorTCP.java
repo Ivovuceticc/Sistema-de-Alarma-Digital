@@ -32,6 +32,7 @@ public class ServidorTCP extends Observable implements Runnable {
 
     public ServidorTCP(Observer observador){
         addObserver(observador);
+        receptores = new ArrayList<>();
     }
 
     public void iniciar()
@@ -69,11 +70,16 @@ public class ServidorTCP extends Observable implements Runnable {
                 else
                     salida.println(MensajeEmisorF);
                 */
-                String fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("DD/MM/YYYY"));
+
+                String fecha = getFecha();
                 if (mensaje[0].equals("0")) ///recibo emergencia de emisor
                 {
+                    System.out.println("Emtra en emisor");
                     mensajeEmisor = new MensajeEmisor(mensaje);
                     if (receptorTipoEmergencia(mensajeEmisor.getTipoEmergencia())) {
+
+                        System.out.println("Emtra en filtro");
+
                         enviarEmergencia(mensajeEmisor.getTipoEmergencia(),fecha); ///envia Emergencia a receptor
                         salida.println(MensajeEmisor);
                     }
@@ -89,7 +95,7 @@ public class ServidorTCP extends Observable implements Runnable {
                 {
                     Receptor receptor;
                     mensajeReceptor = new MensajeReceptor(mensaje);
-                    receptor = new Receptor(socketCliente.getInetAddress().toString(),Integer.parseInt(mensajeReceptor.getPuerto()),mensajeReceptor.getTipoEmergencias());
+                    receptor = new Receptor(socketCliente.getInetAddress().toString().substring(1),Integer.parseInt(mensajeReceptor.getPuerto()),mensajeReceptor.getTipoEmergencias());
                     receptores.add(receptor);
                     String tipoSolicitudes = "";
                     StringBuilder sb = new StringBuilder();
@@ -123,10 +129,17 @@ public class ServidorTCP extends Observable implements Runnable {
 
     public Boolean receptorTipoEmergencia (String tipoSolicitud) {
         int i = 0;
-        while (i < receptores.size() && receptores.get(i).getTipoSolicitudes().stream().filter(s -> s.equals(tipoSolicitud)).count() == 0) {
+        while (i < receptores.size() && receptores.get(i).getTipoSolicitudes().stream().filter(s -> s.equalsIgnoreCase(tipoSolicitud)).count() == 0) {
           i++;
         }
         return (i<receptores.size());
+    }
+
+
+    public String getFecha() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);
     }
 
 
@@ -139,7 +152,8 @@ public class ServidorTCP extends Observable implements Runnable {
         RegistroEvento evento;
         BufferedReader sc = new BufferedReader( new InputStreamReader(System.in));
         for(Receptor receptor : receptores) {
-             if(receptor.getTipoSolicitudes().stream().filter(s -> s.equals(tipoSolicitud)).count() > 0) {
+             if(receptor.getTipoSolicitudes().stream().filter(s -> s.equalsIgnoreCase(tipoSolicitud)).count() > 0) {
+
                  try {
                      socketCliente = new Socket();
                      SocketAddress socketAddress = new InetSocketAddress(receptor.getIP(), receptor.getPuerto());
@@ -150,6 +164,7 @@ public class ServidorTCP extends Observable implements Runnable {
                      evento = new RegistroEvento(socketAddress.toString(),receptor.getPuerto().toString(),tipoSolicitud,fecha);
                      //Manda la emergencia
                      salida.println(tipoSolicitud + "#" + fecha + "#" + mensajeEmisor.getUbicacion());
+
                      notificarEvento(evento);
                      //Recibe la confirmacion
                     /// String mensaje = entrada.readLine();

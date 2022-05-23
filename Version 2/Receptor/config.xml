@@ -5,7 +5,7 @@
 	<puerto>1005</puerto>
     </Receptor>
     <Servidor>
-	<ip>192.168.0.11</ip>
+	<ip>192.168.0.219</ip>
 	<puerto>1111</puerto>
     </Servidor>
 </config>

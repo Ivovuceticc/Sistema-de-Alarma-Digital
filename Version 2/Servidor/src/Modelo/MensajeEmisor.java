@@ -7,8 +7,9 @@ public class MensajeEmisor
 
     public MensajeEmisor(String[] mensaje)
     {
-        tipoEmergencia = mensaje[1];
         ubicacion = mensaje[2];
+        tipoEmergencia = mensaje[1];
+
     }
 
     public String getTipoEmergencia() {

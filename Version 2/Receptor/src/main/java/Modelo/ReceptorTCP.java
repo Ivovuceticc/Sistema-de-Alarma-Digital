@@ -39,7 +39,7 @@ public class ReceptorTCP extends Observable implements Runnable {
     {
         hilo = new Thread(this);
         ejecutarHilo = true;
-        hilo.run();
+        hilo.start();
     }
     public void Detener()
     {
@@ -54,33 +54,25 @@ public class ReceptorTCP extends Observable implements Runnable {
     public boolean NotificarServidor()
     {
         boolean servidorConectado = false;
-        Socket socketCliente = null;
-
-        BufferedReader entrada = null;
-        PrintWriter salida = null;
-
-        BufferedReader sc = new BufferedReader( new InputStreamReader(System.in));
 
         try {
-            socketCliente = new Socket();
+            Socket socketCliente = new Socket();
             SocketAddress socketAddress = new InetSocketAddress(InformacionConfig.getInstance().getIpServidor(), InformacionConfig.getInstance().getPuertoServidor());
-            socketCliente.setSoTimeout(10000);
+            socketCliente.setSoTimeout(2000);
             socketCliente.connect(socketAddress, 1000);
-            entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-            salida = new PrintWriter(socketCliente.getOutputStream(), true);
+            PrintWriter salida = new PrintWriter(socketCliente.getOutputStream(), true);
 
             salida.println("1#"+InformacionConfig.getInstance().getPuertoReceptor()+"#"+getEmergencias());
 
-            servidorConectado = true;
             salida.close();
-            entrada.close();
-            sc.close();
             socketCliente.close();
-        } catch (Exception e) {
+            servidorConectado = true;
+        } catch (IOException e) {
             System.out.println("Tiempo de espera agotado para conectar al host");
         }
         return servidorConectado;
     }
+    @Override
     public void run() {
         try
         {
@@ -97,7 +89,7 @@ public class ReceptorTCP extends Observable implements Runnable {
                     MensajeEmergencia mensaje = new MensajeEmergencia(rta);
 
                     NotificarEmergencia(mensaje);
-                    salida.println(MensajeEmisor);
+                    //salida.println(MensajeEmisor);
 
                     entrada.close();
                     salida.close();

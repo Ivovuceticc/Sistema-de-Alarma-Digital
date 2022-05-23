@@ -50,12 +50,12 @@ public class Controlador implements ActionListener, WindowListener, Observer {
     {
         if (!receptorIniciado)
         {
+            receptorIniciado = true;
             receptor.setAceptaEM(vistaAjustes.getEmergenciaM());
             receptor.setAceptaI(vistaAjustes.getIncendio());
             receptor.setAceptaP(vistaAjustes.getPolicia());
-            receptor.Iniciar();
-            receptorIniciado = true;
             this.vistaAjustes.BloquearTipEmergencia();
+            receptor.Iniciar();
         }
     }
 

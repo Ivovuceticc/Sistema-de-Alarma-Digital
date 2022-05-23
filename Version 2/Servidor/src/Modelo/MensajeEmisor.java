@@ -9,6 +9,7 @@ public class MensajeEmisor
     {
         ubicacion = mensaje[2];
         tipoEmergencia = mensaje[1];
+
     }
 
     public String getTipoEmergencia() {

@@ -70,6 +70,7 @@ public class ServidorTCP extends Observable implements Runnable {
                 else
                     salida.println(MensajeEmisorF);
                 */
+
                 String fecha = getFecha();
                 if (mensaje[0].equals("0")) ///recibo emergencia de emisor
                 {
@@ -78,6 +79,7 @@ public class ServidorTCP extends Observable implements Runnable {
                     if (receptorTipoEmergencia(mensajeEmisor.getTipoEmergencia())) {
 
                         System.out.println("Emtra en filtro");
+
                         enviarEmergencia(mensajeEmisor.getTipoEmergencia(),fecha); ///envia Emergencia a receptor
                         salida.println(MensajeEmisor);
                     }
@@ -133,11 +135,13 @@ public class ServidorTCP extends Observable implements Runnable {
         return (i<receptores.size());
     }
 
+
     public String getFecha() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
+
 
     public void enviarEmergencia(String tipoSolicitud, String fecha)
     {
@@ -148,8 +152,8 @@ public class ServidorTCP extends Observable implements Runnable {
         RegistroEvento evento;
         BufferedReader sc = new BufferedReader( new InputStreamReader(System.in));
         for(Receptor receptor : receptores) {
-            System.out.println("HOLA");
              if(receptor.getTipoSolicitudes().stream().filter(s -> s.equalsIgnoreCase(tipoSolicitud)).count() > 0) {
+
                  try {
                      socketCliente = new Socket();
                      SocketAddress socketAddress = new InetSocketAddress(receptor.getIP(), receptor.getPuerto());
@@ -160,7 +164,7 @@ public class ServidorTCP extends Observable implements Runnable {
                      evento = new RegistroEvento(socketAddress.toString(),receptor.getPuerto().toString(),tipoSolicitud,fecha);
                      //Manda la emergencia
                      salida.println(tipoSolicitud + "#" + fecha + "#" + mensajeEmisor.getUbicacion());
-                     System.out.println(tipoSolicitud + "#" + fecha + "#" + mensajeEmisor.getUbicacion());
+
                      notificarEvento(evento);
                      //Recibe la confirmacion
                     /// String mensaje = entrada.readLine();

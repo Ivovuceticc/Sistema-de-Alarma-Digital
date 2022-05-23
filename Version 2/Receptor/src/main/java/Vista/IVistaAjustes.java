@@ -10,5 +10,6 @@ public interface IVistaAjustes {
 
     void Mostrar(boolean visible);
     void BloquearTipEmergencia();
+    void DesbloquearTipEmergencia();
     void addActionListener(ActionListener listenner);
 }

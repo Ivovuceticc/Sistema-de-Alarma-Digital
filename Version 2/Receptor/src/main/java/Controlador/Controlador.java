@@ -41,7 +41,7 @@ public class Controlador implements ActionListener, WindowListener, Observer {
         if(e.getActionCommand().equals("Ajustes")){
             this.vistaAjustes.Mostrar(true);
         }
-        else if(e.getActionCommand().equals("Aplicar")){
+        else if(e.getActionCommand().equals("Conectar")){
             IniciarReceptor();
             this.vistaAjustes.Mostrar(false);
         }
@@ -66,6 +66,10 @@ public class Controlador implements ActionListener, WindowListener, Observer {
             if (o == null)
             {
                 vistaReceptor.MostrarCartel((String)arg);
+                this.vistaAjustes.DesbloquearTipEmergencia();
+                receptorIniciado = false;
+                this.vistaAjustes.Mostrar(true);
+
             }
             else
             {
@@ -76,7 +80,6 @@ public class Controlador implements ActionListener, WindowListener, Observer {
             e.printStackTrace();
         }
     }
-
     @Override
     public void windowOpened(WindowEvent e) {
     }

@@ -22,8 +22,10 @@ public class VentanaAjustes extends JFrame implements IVistaAjustes{
         setSize(500,300);
         this.setContentPane(contentPane);
 
-        this.buttonAplicar.setActionCommand("Aplicar");
+        this.buttonAplicar.setActionCommand("Conectar");
         this.buttonCancelar.setActionCommand("Cancelar");
+
+        DesbloquearTipEmergencia();
 
         this.setVisible(true);
     }
@@ -67,5 +69,16 @@ public class VentanaAjustes extends JFrame implements IVistaAjustes{
         RdbuttonEmergenciaM.setEnabled(false);
         RdbuttonIncendio.setEnabled(false);
         RdbuttonPolicia.setEnabled(false);
+
+        this.buttonAplicar.setText("Ok");
+    }
+    @Override
+    public void DesbloquearTipEmergencia()
+    {
+        RdbuttonEmergenciaM.setEnabled(true);
+        RdbuttonIncendio.setEnabled(true);
+        RdbuttonPolicia.setEnabled(true);
+
+        this.buttonAplicar.setText("Conectar");
     }
 }

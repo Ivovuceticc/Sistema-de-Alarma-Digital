@@ -1,0 +1,11 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "no" ?>
+
+<config>
+    <direccion>
+	<ubicacion>Lab computacion - Consitucion 1234</ubicacion>
+    </direccion>
+    <Server>
+	<ip>192.168.0.219</ip>
+	<puerto>1111</puerto>
+    </Server>
+</config>

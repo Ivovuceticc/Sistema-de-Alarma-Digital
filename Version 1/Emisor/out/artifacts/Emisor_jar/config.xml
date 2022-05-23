@@ -1,0 +1,21 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "no" ?>
+
+<config>
+    <ubicacion>
+        <direccion>Pampa 6666</direccion>
+    </ubicacion>
+    <Receptores>
+        <Receptor>
+            <ip>192.168.0.11</ip>
+            <puerto>1111</puerto>
+        </Receptor>
+        <Receptor>
+            <ip>192.168.0.11</ip>
+            <puerto>1112</puerto>
+        </Receptor>
+        <Receptor>
+            <ip>192.168.0.11</ip>
+            <puerto>1113</puerto>
+        </Receptor>
+    </Receptores>
+</config>

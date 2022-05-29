@@ -12,15 +12,15 @@ public class Receptor {
         this.ip = ip;
         this.puerto = puerto;
         if (solicitudes.charAt(0) == '1') {
-            this.tipoSolicitudes.add("Medica");
+            this.tipoSolicitudes.add("emergencia");
         }
         if (solicitudes.charAt(1) == '1')
         {
-            this.tipoSolicitudes.add("Incendio");
+            this.tipoSolicitudes.add("incendio");
         }
         if (solicitudes.charAt(2) == '1')
         {
-            this.tipoSolicitudes.add("Policial");
+            this.tipoSolicitudes.add("policia");
         }
     }
 

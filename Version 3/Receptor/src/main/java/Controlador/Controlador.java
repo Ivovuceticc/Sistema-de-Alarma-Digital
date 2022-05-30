@@ -65,11 +65,27 @@ public class Controlador implements ActionListener, WindowListener, Observer {
         try {
             if (o == null)
             {
-                vistaReceptor.MostrarCartel((String)arg);
-                this.vistaAjustes.DesbloquearTipEmergencia();
-                receptorIniciado = false;
-                this.vistaAjustes.Mostrar(true);
-
+                String mensaje = (String)arg;
+                if (mensaje.equals("enviandoRegistro"))
+                {
+                    this.vistaReceptor.enviandoRegistro();
+                } else {
+                    if (mensaje.equals("registrado"))
+                    {
+                        this.vistaReceptor.registroCompletado();
+                    } else {
+                        if (mensaje.equals("fallo"))
+                        {
+                            this.vistaReceptor.registroFallado();
+                        }
+                        else {
+                            vistaReceptor.MostrarCartel((String)arg);
+                            this.vistaAjustes.DesbloquearTipEmergencia();
+                            receptorIniciado = false;
+                            this.vistaAjustes.Mostrar(true);
+                        }
+                    }
+                }
             }
             else
             {

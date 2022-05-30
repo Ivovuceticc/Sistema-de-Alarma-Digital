@@ -25,6 +25,7 @@ public class ReceptorTCP extends Observable implements Runnable {
 
     private Observer observador;
 
+    ReintentoSocket reintentoSocket;
     private String getEmergencias()
     {
         return (aceptaEM? "1":"0") + (aceptaI?"1":"0")+ (aceptaP?"1":"0");
@@ -32,6 +33,7 @@ public class ReceptorTCP extends Observable implements Runnable {
 
     public ReceptorTCP(Observer observador){
         this.observador = observador;
+        reintentoSocket = new ReintentoSocket();
         //addObserver(observador);
     }
 
@@ -51,33 +53,38 @@ public class ReceptorTCP extends Observable implements Runnable {
         }
     }
 
-    public boolean NotificarServidor()
-    {
+    public boolean NotificarServidor() {
         boolean servidorConectado = false;
+        NotificarEstadoConexion("enviandoRegistro");
+        reintentoSocket.Reiniciar();
+        while (!servidorConectado && reintentoSocket.getIntentos() < 10)
+        {
+            System.out.println("Intento numero " + reintentoSocket.getIntentos());
+            try {
+                Socket socketCliente = new Socket();
+                SocketAddress socketAddress = new InetSocketAddress(reintentoSocket.getIP(), reintentoSocket.getPuerto());
+                socketCliente.setSoTimeout(2000);
+                socketCliente.connect(socketAddress, 1000);
+                PrintWriter salida = new PrintWriter(socketCliente.getOutputStream(), true);
 
-        try {
-            Socket socketCliente = new Socket();
-            SocketAddress socketAddress = new InetSocketAddress(InformacionConfig.getInstance().getIpServidor(), InformacionConfig.getInstance().getPuertoServidor());
-            socketCliente.setSoTimeout(2000);
-            socketCliente.connect(socketAddress, 1000);
-            PrintWriter salida = new PrintWriter(socketCliente.getOutputStream(), true);
+                salida.println("1#" + InformacionConfig.getInstance().getPuertoReceptor() + "#" + getEmergencias());
 
-            salida.println("1#"+InformacionConfig.getInstance().getPuertoReceptor()+"#"+getEmergencias());
-
-            salida.close();
-            socketCliente.close();
-            servidorConectado = true;
-        } catch (IOException e) {
-            System.out.println("Tiempo de espera agotado para conectar al host");
+                salida.close();
+                socketCliente.close();
+                servidorConectado = true;
+            } catch (IOException e) {
+                reintentoSocket.Reintentar();
+            }
         }
         return servidorConectado;
     }
     @Override
     public void run() {
-        try
+        if (NotificarServidor())
         {
-            if (NotificarServidor())
+            try
             {
+                NotificarEstadoConexion("registrado");
                 socketServidor = new ServerSocket(InformacionConfig.getInstance().getPuertoReceptor());
                 do
                 {
@@ -97,12 +104,12 @@ public class ReceptorTCP extends Observable implements Runnable {
                 }
                 while(ejecutarHilo);
             }
-            else {
-                NotificarErrorServidor();
+            catch(Exception e)
+            {
             }
-        }
-        catch(Exception e)
-        {
+        } else {
+            NotificarEstadoConexion("fallo");
+            NotificarErrorServidor();
         }
     }
 
@@ -115,6 +122,11 @@ public class ReceptorTCP extends Observable implements Runnable {
     {
         setChanged();
         observador.update(null, "No es posible conectarse con el servidor");
+    }
+    private void NotificarEstadoConexion(String estado)
+    {
+        setChanged();
+        observador.update(null, estado);
     }
 
     public void setAceptaEM(boolean resp){

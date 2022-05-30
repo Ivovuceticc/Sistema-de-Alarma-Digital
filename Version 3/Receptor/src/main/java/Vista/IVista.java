@@ -12,4 +12,7 @@ public interface IVista {
     void addWindowListener(WindowListener windowListener);
 
     void MostrarCartel(String mensaje);
+    void enviandoRegistro();
+    void registroCompletado();
+    void registroFallado();
 }

@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import com.sun.security.ntlm.Server;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -13,8 +15,8 @@ import org.xml.sax.SAXException;
 
 public class InformacionConfig {
     private int puertoReceptor;
-    private String ipServidor;
-    private int puertoServidor;
+    private Servidor servidor1;
+    private Servidor servidor2;
     private static InformacionConfig instance = null;
 
     private InformacionConfig(){
@@ -44,16 +46,22 @@ public class InformacionConfig {
 
             String puertoReceptor = eElement.getElementsByTagName("puerto").item(0).getTextContent();
 
-            nList = document.getElementsByTagName("Servidor");
+            nList = document.getElementsByTagName("Servidor1");
             eElement = (Element) nList.item(0);
 
-            String ipServidor = eElement.getElementsByTagName("ip").item(0).getTextContent();
-            String puertoServidor = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+            String ipServidor1 = eElement.getElementsByTagName("ip").item(0).getTextContent();
+            String puertoServidor1 = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+
+            nList = document.getElementsByTagName("Servidor2");
+            eElement = (Element) nList.item(0);
+
+            String ipServidor2 = eElement.getElementsByTagName("ip").item(0).getTextContent();
+            String puertoServidor2 = eElement.getElementsByTagName("puerto").item(0).getTextContent();
 
             this.puertoReceptor = Integer.parseInt(puertoReceptor);
 
-            this.ipServidor = ipServidor;
-            this.puertoServidor = Integer.parseInt(puertoServidor);
+            this.servidor1 = new Servidor(ipServidor1, Integer.parseInt(puertoServidor1));
+            this.servidor2 = new Servidor(ipServidor2, Integer.parseInt(puertoServidor2));
 
         }
         catch(IOException | ParserConfigurationException | SAXException e) {
@@ -64,11 +72,11 @@ public class InformacionConfig {
     public int getPuertoReceptor(){
         return this.puertoReceptor;
     }
-    public String getIpServidor(){
-        return this.ipServidor;
+    public Servidor getServidor1(){
+        return this.servidor1;
     }
-    public int getPuertoServidor(){
-        return this.puertoServidor;
+    public Servidor getServidor2(){
+        return this.servidor2;
     }
 
 }

@@ -13,12 +13,18 @@ import java.util.Observer;
  *
  * @author user
  */
-public class EmisorTCP extends Observable {
-    Ubicacion ubicacion;
-    Servidor servidor;
+public class EmisorTCP extends Observable implements Runnable {
+
+    private Thread hiloEmisor = null;
+    private Ubicacion ubicacion;
 
     private String MensajeCorrecto = "recibido";
     private String MensajeNegativo = "No se pudo recibir";
+
+    private String tipoSolicitud;
+    private String fecha;
+
+    private ReintentoSocket reintentoSocket;
 
     public String getUbicacion()
     {
@@ -27,21 +33,26 @@ public class EmisorTCP extends Observable {
 
     public EmisorTCP(Observer observador)
     {
+        reintentoSocket = new ReintentoSocket();
         ubicacion = InformacionConfig.getInstance().getUbicacion();
-        servidor = InformacionConfig.getInstance().getServidor();
         addObserver(observador);
     }
 
-    public void EnviarEmergencia(String tipoSolicitud, String fecha)
-    {
+    @Override
+    public void run() {
+        String tipoSolicitud = this.tipoSolicitud;
         Socket socketCliente = null;
+        Boolean exitoEmergencia = false;
 
         BufferedReader entrada = null; //leer texto de secuencia de entrada
         PrintWriter salida = null; //crear y escribir archivos
-
         try {
+        reintentoSocket.Reiniciar();
+        while (!exitoEmergencia && reintentoSocket.getIntentos() < 10) {
+            System.out.println("Intento numero " + reintentoSocket.getIntentos());
+            try {
                 socketCliente = new Socket();
-                SocketAddress socketAddress = new InetSocketAddress(servidor.getIP(), servidor.getPuerto());
+                SocketAddress socketAddress = new InetSocketAddress(reintentoSocket.getIP(), reintentoSocket.getPuerto());
                 socketCliente.setSoTimeout(10000);
                 socketCliente.connect(socketAddress, 1000);
                 entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
@@ -54,21 +65,37 @@ public class EmisorTCP extends Observable {
                 //Recibe la confirmacion
                 String mensaje = entrada.readLine();
 
-                if (MensajeCorrecto.equals(mensaje))
-                {
+                if (MensajeCorrecto.equals(mensaje)) {
                     NotificarEmergencia(MensajeCorrecto);
-                }
-                else
-                {
+                } else {
                     NotificarEmergencia(MensajeNegativo);
                 }
 
+                exitoEmergencia = true;
                 salida.close();
                 entrada.close();
                 socketCliente.close();
             } catch (Exception e) {
-                System.out.println("Tiempo de espera agotado para conectar al host");
-                NotificarEmergencia("No es posible conectarse con el servidor");
+                reintentoSocket.Reintentar();
+            }
+        }
+        if (!exitoEmergencia)
+        {
+            NotificarEmergencia("No es posible conectarse con el servidor");
+        }
+        hiloEmisor = null;
+        NotificarEmergencia("emergenciaDisponible");
+    }
+    public void EnviarEmergencia(String tipoSolicitud, String fecha)
+    {
+        if (hiloEmisor == null)
+        {
+            this.tipoSolicitud = tipoSolicitud;
+            this.fecha = fecha;
+
+            hiloEmisor = new Thread(this);
+            hiloEmisor.start();
+            NotificarEmergencia("enviandoEmergencia");
         }
     }
     private void NotificarEmergencia(String mensaje)

@@ -16,7 +16,8 @@ import org.xml.sax.SAXException;
 
 public class InformacionConfig {
     private static InformacionConfig instance = null;
-    private Servidor servidor;
+    private Servidor servidor1;
+    private Servidor servidor2;
     private Ubicacion ubicacion;
     private InformacionConfig(){
         this.leeArchivoConfig();
@@ -30,7 +31,6 @@ public class InformacionConfig {
         }
         return instance;
     }
-
     private void leeArchivoConfig() {
         try {
             File file = new File("config.xml");
@@ -39,26 +39,41 @@ public class InformacionConfig {
             Document document = db.parse(file);
             document.getDocumentElement().normalize();
 
-            NodeList nList = document.getElementsByTagName("config");
+            //NodeList nList = document.getElementsByTagName("config");
 
-            Node nNode = nList.item(0);
-            Element eElement = (Element) nNode;
+            NodeList nList = document.getElementsByTagName("Servidor1");
+            Element eElement = (Element) nList.item(0);
 
-            String ipserver = eElement.getElementsByTagName("ip").item(0).getTextContent();
-            String puerto = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+            String ipServidor1 = eElement.getElementsByTagName("ip").item(0).getTextContent();
+            String puertoServidor1 = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+
+            nList = document.getElementsByTagName("Servidor2");
+            eElement = (Element) nList.item(0);
+
+            String ipServidor2 = eElement.getElementsByTagName("ip").item(0).getTextContent();
+            String puertoServidor2 = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+
+            nList = document.getElementsByTagName("direccion");
+            eElement = (Element) nList.item(0);
+
             String ubicacion = eElement.getElementsByTagName("ubicacion").item(0).getTextContent();
 
-            this.servidor = new Servidor(ipserver, Integer.parseInt(puerto));
             this.ubicacion = new Ubicacion(ubicacion);
+            this.servidor1 = new Servidor(ipServidor1, Integer.parseInt(puertoServidor1));
+            this.servidor2 = new Servidor(ipServidor2, Integer.parseInt(puertoServidor2));
         }
+
         catch(IOException | ParserConfigurationException | SAXException e) {
             System.out.println(e);
         }
     }
-
-    public Servidor getServidor()
+    public Servidor getServidor1()
     {
-        return servidor;
+        return servidor1;
+    }
+    public Servidor getServidor2()
+    {
+        return servidor2;
     }
     public Ubicacion getUbicacion()
     {

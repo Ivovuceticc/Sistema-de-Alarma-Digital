@@ -9,4 +9,6 @@ public interface IVista {
     void Confirmacion(String mensaje);
     void addActionListener(ActionListener listenner);
     void setDireccion(String direccion);
+    void enviandoEmergencia();
+    void emergenciaDisponible();
 }

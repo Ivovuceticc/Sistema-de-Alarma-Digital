@@ -66,6 +66,7 @@ public class VentanaEmisor extends JFrame implements IVista
     private JButton btn_Enviar;
     private JLabel lblNewLabel_1;
     private JLabel lblNewLabel_Direccion;
+    //private JLabel lblEnviado;
     private final ButtonGroup buttonGroup = new ButtonGroup();
 
     /**
@@ -309,6 +310,12 @@ public class VentanaEmisor extends JFrame implements IVista
         this.btn_Enviar.setActionCommand("Enviar");
         this.panel_DerechoEnviar.add(this.btn_Enviar, BorderLayout.CENTER);
 
+        /*this.lblEnviado = new JLabel("Enviando");
+        this.lblEnviado.setOpaque(false);
+        this.lblEnviado.setForeground(Color.BLACK);
+        this.lblEnviado.setBackground(new Color(23,12,32));
+        this.panel_DerechoEnviar.add(this.lblEnviado, BorderLayout.WEST);*/
+
         rdbtnEmergenciaM.setSelected(true);
 
         this.setVisible(true);
@@ -356,5 +363,17 @@ public class VentanaEmisor extends JFrame implements IVista
     public void setDireccion(String direccion)
     {
         lblNewLabel_Direccion.setText("Direccion: "+direccion);
+    }
+
+    @Override
+    public void enviandoEmergencia()
+    {
+        this.btn_Enviar.setText("Enviando...");
+        this.btn_Enviar.setEnabled(false);
+    }
+    public void emergenciaDisponible()
+    {
+        this.btn_Enviar.setText("Enviar");
+        this.btn_Enviar.setEnabled(true);
     }
 }

@@ -14,6 +14,7 @@ public class VentanaReceptor extends JFrame implements IVista {
     private JButton buttonSalir;
     private JTable table1;
     private JButton buttonAjustes;
+    private JLabel notificador;
     private JScrollPane scrollPane;
     private Alarma alarma;
 
@@ -49,6 +50,7 @@ public class VentanaReceptor extends JFrame implements IVista {
             }
         });
 
+        notificador.setVisible(false);
         this.setVisible(true);
     }
 
@@ -86,5 +88,19 @@ public class VentanaReceptor extends JFrame implements IVista {
     @Override
     public void addActionListener(ActionListener listenner) {
         this.buttonAjustes.addActionListener(listenner);
+    }
+    @Override
+    public void enviandoRegistro(){
+        notificador.setVisible(true);
+        notificador.setText("Conectandose al servidor...");
+    }
+    @Override
+    public void registroCompletado(){
+        notificador.setVisible(false);
+    }
+    @Override
+    public void registroFallado(){
+        notificador.setVisible(true);
+        notificador.setText("Conexion fallida");
     }
 }

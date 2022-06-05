@@ -4,8 +4,12 @@
     <direccion>
 	<ubicacion>Lab computacion - Consitucion 1234</ubicacion>
     </direccion>
-    <Server>
+    <Servidor1>
 	<ip>192.168.0.219</ip>
 	<puerto>1111</puerto>
-    </Server>
+    </Servidor1>
+    <Servidor2>
+	<ip>192.168.0.219</ip>
+	<puerto>1112</puerto>
+    </Servidor2>
 </config>

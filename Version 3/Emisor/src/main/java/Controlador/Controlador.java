@@ -29,6 +29,16 @@ public class Controlador implements ActionListener, Observer {
     }
     @Override
     public void update(Observable o, Object arg) {
-        this.vista.Confirmacion((String)arg);
+        String mensaje = (String)arg;
+        if (mensaje.equals("enviandoEmergencia"))
+        {
+            this.vista.enviandoEmergencia();
+        } else {
+            if (mensaje.equals("emergenciaDisponible")) {
+                this.vista.emergenciaDisponible();
+            } else {
+                this.vista.Confirmacion(mensaje);
+            }
+        }
     }
 }

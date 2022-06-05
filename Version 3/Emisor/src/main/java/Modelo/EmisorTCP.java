@@ -49,7 +49,7 @@ public class EmisorTCP extends Observable implements Runnable {
 
         BufferedReader sc = new BufferedReader( new InputStreamReader(System.in));
         reintentoSocket.Reiniciar();
-        while (!exitoEmergencia && reintentoSocket.getIntentos() < 10) {
+        while (!exitoEmergencia) {
             System.out.println("Intento numero " + reintentoSocket.getIntentos());
             try {
                 socketCliente = new Socket();
@@ -83,7 +83,7 @@ public class EmisorTCP extends Observable implements Runnable {
         }
         if (!exitoEmergencia)
         {
-            NotificarEmergencia("No es posible conectarse con el servidor");
+            //NotificarEmergencia("No es posible conectarse con el servidor");
         }
         hiloEmisor = null;
         NotificarEmergencia("emergenciaDisponible");

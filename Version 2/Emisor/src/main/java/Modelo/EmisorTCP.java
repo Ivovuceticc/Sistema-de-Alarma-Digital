@@ -39,7 +39,6 @@ public class EmisorTCP extends Observable {
         BufferedReader entrada = null; //leer texto de secuencia de entrada
         PrintWriter salida = null; //crear y escribir archivos
 
-        BufferedReader sc = new BufferedReader( new InputStreamReader(System.in));
 
         try {
                 socketCliente = new Socket();
@@ -67,7 +66,6 @@ public class EmisorTCP extends Observable {
 
                 salida.close();
                 entrada.close();
-                sc.close();
                 socketCliente.close();
             } catch (Exception e) {
                 System.out.println("Tiempo de espera agotado para conectar al host");

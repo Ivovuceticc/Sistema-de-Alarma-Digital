@@ -74,11 +74,8 @@ public class ServidorTCP extends Observable implements Runnable {
                 String fecha = getFecha();
                 if (mensaje[0].equals("0")) ///recibo emergencia de emisor
                 {
-                    System.out.println("Emtra en emisor");
                     mensajeEmisor = new MensajeEmisor(mensaje);
                     if (receptorTipoEmergencia(mensajeEmisor.getTipoEmergencia())) {
-
-                        System.out.println("Emtra en filtro");
 
                         enviarEmergencia(mensajeEmisor.getTipoEmergencia(),fecha); ///envia Emergencia a receptor
                         salida.println(MensajeEmisor);

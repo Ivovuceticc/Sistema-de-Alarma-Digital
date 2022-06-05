@@ -7,6 +7,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class VentanaServidor extends JFrame implements IVistaServer{
     private JScrollPane scrollPane_Server;
@@ -26,6 +28,12 @@ public class VentanaServidor extends JFrame implements IVistaServer{
 
         this.setVisible(true);
         this.setLocationRelativeTo(null);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+                //dispose();
+            }
+        });
     }
 
     public void agregaLogCentral(RegistroEvento e)
@@ -36,4 +44,5 @@ public class VentanaServidor extends JFrame implements IVistaServer{
     public void addActionListener(ActionListener listenner){
         this.addActionListener(listenner);
     }
+
 }

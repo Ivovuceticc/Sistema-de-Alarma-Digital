@@ -46,7 +46,6 @@ public class EmisorTCP extends Observable implements Runnable {
 
         BufferedReader entrada = null; //leer texto de secuencia de entrada
         PrintWriter salida = null; //crear y escribir archivos
-        try {
         reintentoSocket.Reiniciar();
         while (!exitoEmergencia && reintentoSocket.getIntentos() < 10) {
             System.out.println("Intento numero " + reintentoSocket.getIntentos());

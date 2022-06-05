@@ -1,6 +1,5 @@
 package Modelo;
 
-import com.sun.xml.internal.ws.api.addressing.WSEndpointReference;
 
 public class ReintentoSocket {
     private Servidor[] servidor;

@@ -40,15 +40,16 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         notificarRol("Ninguno");
         //serPrimario();
         //serSecundario("192.168.0.14",1211);
-        /*serPrimario();
+        serPrimario();
         receptores.add(new Receptor("192.111.11.1", 1234, "001"));
         receptores.add(new Receptor("192.111.11.2", 1234, "001"));
         receptores.add(new Receptor("192.111.11.2", 1234, "001"));
-        receptores.add(new Receptor("192.111.11.2", 1234, "001"));*/
+        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
 
     }
     //-------------------------------------------------------------------------------------------
     //HILOS
+    //los dos
     private class HiloMonitor implements Runnable {
         private boolean ejecutando = true;
         public void run()
@@ -89,6 +90,7 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
             monitor.CerrarServer();
         }
     }
+    //Solo lo ejecuta el servidor primario
     private class HiloPrimario implements Runnable {
         private boolean ejecutando = true;
         public void run()
@@ -217,45 +219,29 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
     }
     @Override
     public void runSecundario(String ip, int puerto) {
-
-        Socket socketCliente = new Socket();
-        SocketAddress socketAddress = new InetSocketAddress(ip, puerto);
         boolean ejecucion = true;
-        do {
-            try {
-                socketCliente.setSoTimeout(10000);
-                socketCliente.connect(socketAddress, 1000);
-                BufferedReader entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-                PrintWriter salida = new PrintWriter(socketCliente.getOutputStream(), true);
+        CSocket cliente = new CSocket();
 
-                //Registrarse
-                salida.println("0");
-                //
-                do {
-                    String mensaje = entrada.readLine();
-                    if (mensaje.equals("fin")) {
-                        ejecucion = false;
-                    }
-                    else
-                    {
-                        String[] receptorMensaje = mensaje.split("#");
-                        Receptor receptor = new Receptor(receptorMensaje[0],Integer.parseInt(receptorMensaje[1]),receptorMensaje[2]);
-                        receptores.add(receptor);
-                        notificarEvento(new RegistroEvento(receptor.getIP(),receptor.getPuerto().toString(),
-                                receptor.getTipoSolicitudes().toString(),getFecha()));
-                    }
+        cliente.IniciarClient(ip, puerto);
+        if (cliente.ConectarseServidor() != null)
+        {
+            cliente.EnviarString("0");
+            do {
+                String mensaje = cliente.LeerString();
+                if (mensaje == null || mensaje.equals("fin")) {
+                    ejecucion = false;
                 }
-                while (ejecucion);
-
-                salida.close();
-                entrada.close();
-                socketCliente.close();
+                else
+                {
+                    String[] receptorMensaje = mensaje.split("#");
+                    Receptor receptor = new Receptor(receptorMensaje[0],Integer.parseInt(receptorMensaje[1]),receptorMensaje[2]);
+                    receptores.add(receptor);
+                    notificarEvento(new RegistroEvento(receptor.getIP(),receptor.getPuerto().toString(),
+                            receptor.getTipoSolicitudes().toString(),getFecha()));
+                }
             }
-            catch (Exception e) {
-                ejecucion = false;
-            }
+            while (ejecucion);
         }
-        while (ejecucion);
     }
     @Override
     public void serPrimario() {
@@ -274,7 +260,7 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         do {
             servidorState.Run();
         }
-        while (1 != 0);
+        while (ejecutarHilo);
     }
     public Boolean receptorTipoEmergencia (String tipoSolicitud) {
         int i = 0;

@@ -1,7 +1,7 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "no" ?>
 <informacion>
-    <address>192.168.1.1</address>
-    <port>1003</port>
-    <address>192.168.1.2</address>
-    <port>1004</port>
+    <address>192.168.0.14</address>
+    <port>1112</port>
+    <address>192.168.0.14</address>
+    <port>1212</port>
 </informacion>

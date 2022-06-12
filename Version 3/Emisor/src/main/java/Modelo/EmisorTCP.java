@@ -1,6 +1,7 @@
 package Modelo;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -47,7 +48,7 @@ public class EmisorTCP extends Observable implements Runnable {
         BufferedReader entrada = null; //leer texto de secuencia de entrada
         PrintWriter salida = null; //crear y escribir archivos
         reintentoSocket.Reiniciar();
-        while (!exitoEmergencia && reintentoSocket.getIntentos() < 10) {
+        while (!exitoEmergencia) {
             System.out.println("Intento numero " + reintentoSocket.getIntentos());
             try {
                 socketCliente = new Socket();
@@ -80,7 +81,7 @@ public class EmisorTCP extends Observable implements Runnable {
         }
         if (!exitoEmergencia)
         {
-            NotificarEmergencia("No es posible conectarse con el servidor");
+            //NotificarEmergencia("No es posible conectarse con el servidor");
         }
         hiloEmisor = null;
         NotificarEmergencia("emergenciaDisponible");

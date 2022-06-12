@@ -57,7 +57,7 @@ public class ReceptorTCP extends Observable implements Runnable {
         boolean servidorConectado = false;
         NotificarEstadoConexion("enviandoRegistro");
         reintentoSocket.Reiniciar();
-        while (!servidorConectado && reintentoSocket.getIntentos() < 10)
+        while (!servidorConectado)
         {
             System.out.println("Intento numero " + reintentoSocket.getIntentos());
             try {
@@ -108,8 +108,8 @@ public class ReceptorTCP extends Observable implements Runnable {
             {
             }
         } else {
-            NotificarEstadoConexion("fallo");
-            NotificarErrorServidor();
+            //NotificarEstadoConexion("fallo");
+            //NotificarErrorServidor();
         }
     }
 

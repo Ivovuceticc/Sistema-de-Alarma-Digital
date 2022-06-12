@@ -96,7 +96,8 @@ public class VentanaReceptor extends JFrame implements IVista {
     }
     @Override
     public void registroCompletado(){
-        notificador.setVisible(false);
+        notificador.setVisible(true);
+        notificador.setText("Conectado");
     }
     @Override
     public void registroFallado(){

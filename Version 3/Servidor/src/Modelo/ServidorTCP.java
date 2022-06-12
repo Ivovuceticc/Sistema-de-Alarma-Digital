@@ -11,11 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class ServidorTCP extends Observable implements Runnable, IServidorState {
-    private ServerSocket socketServidor = null;
-    private Socket socketCliente = null;
-    private BufferedReader entrada = null;
-    private PrintWriter salida = null;
-
     private Thread hilo = null;
     private Thread hiloMonitor = null;
     private Thread hiloPrimario = null;
@@ -43,12 +38,14 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         hiloMonitor = new Thread(new HiloMonitor());
         hiloMonitor.start();
         notificarRol("Ninguno");
+        //serPrimario();
         //serSecundario("192.168.0.14",1211);
-        serPrimario();
+        /*serPrimario();
         receptores.add(new Receptor("192.111.11.1", 1234, "001"));
         receptores.add(new Receptor("192.111.11.2", 1234, "001"));
         receptores.add(new Receptor("192.111.11.2", 1234, "001"));
-        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
+        receptores.add(new Receptor("192.111.11.2", 1234, "001"));*/
+
     }
     //-------------------------------------------------------------------------------------------
     //HILOS
@@ -56,82 +53,79 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         private boolean ejecutando = true;
         public void run()
         {
-            try
-            {
-                do {
-                    ServerSocket socketServidor = new ServerSocket(Integer.parseInt(InformacionConfig.getInstance().getPuertoMonitor()));
-                    Socket socketCliente = socketServidor.accept();
-                    PrintWriter salida = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socketCliente.getOutputStream())), true);
-                    BufferedReader entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-                    String rta = entrada.readLine();
-                    if (rta != null)
+            CSocket monitor = new CSocket();
+            monitor.IniciarServer(InformacionConfig.getInstance().getPuertoMonitor());
+
+            monitor.EsperarClientes();
+            do {
+                String rta = monitor.LeerString();
+                if (rta != null)
+                {
+                    if (rta.equals("ping"))
                     {
-                        if (rta.equals("ping"))
+                        monitor.EnviarString("echo");
+                    }
+                    else
+                    {
+                        if (rta.equals("primario"))
                         {
-                            salida.println("echo");
+                            serPrimario();
                         }
                         else
                         {
-                            if (rta.equals("primario"))
+                            String[] info =  rta.split("#");
+                            if (info[0].equals("secundario"))
                             {
-                                serPrimario();
-                            }
-                            else
-                            {
-                                String[] info =  rta.split("#");
-                                if (info[0].equals("secundario"))
-                                {
-                                    serSecundario(info[1], Integer.parseInt(info[2]));
-                                }
+                                serSecundario(info[1], Integer.parseInt(info[2]));
                             }
                         }
                     }
-                    entrada.close();
-                    salida.close();
-                    socketCliente.close();
-                    socketServidor.close();
                 }
-                while (ejecutando);
+                else {
+                    monitor.EsperarClientes();
+                }
             }
-            catch (IOException e)
-            {
-            }
+            while (ejecutando);
+            monitor.CerrarServer();
         }
     }
     private class HiloPrimario implements Runnable {
         private boolean ejecutando = true;
         public void run()
         {
-            try
+            CSocket servidor = new CSocket();
+            servidor.IniciarServer(InformacionConfig.getInstance().getPuertoServidor());
+            do
             {
-                ServerSocket socketServidor = new ServerSocket(Integer.parseInt(InformacionConfig.getInstance().getPuertoServidor()));
-                Socket socketCliente = socketServidor.accept();
-                BufferedReader entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-                PrintWriter salida = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socketCliente.getOutputStream())), true);
-                do
+                ICSocket socket = servidor.EsperarClientes();
+                if (!SecundariosContenido(socket))
                 {
-                    String rta = entrada.readLine();
+                    String rta = servidor.LeerString();
                     for (Receptor r : receptores)
                     {
-                        salida.println(r.toString());
+                        servidor.EnviarString(r.toString());
                     }
-                    salida.println("fin");
-                    AgregarSecundario(new ServidorSecundario(socketCliente, salida));
+                    AgregarSecundario(socket);
                 }
-                while (ejecutando);
-                entrada.close();
-                //salida.close();
-                //socketCliente.close();
             }
-            catch (IOException e)
-            {
-            }
+            while (ejecutando);
         }
     }
     //-------------------------------------------------------------------------------------------
     //synchronized metodos
-    private synchronized void AgregarSecundario(ServidorSecundario secundario){
-        secundarios.add(secundario);
+    private synchronized void AgregarSecundario(ICSocket socket){
+        secundarios.add(new ServidorSecundario(socket));
+    }
+    private synchronized boolean SecundariosContenido(ICSocket socket)
+    {
+        for (ServidorSecundario s : secundarios)
+        {
+            if (s.equals(socket))
+            {
+                return true;
+            }
+        }
+        return false;
     }
     private synchronized void EnviarReceptorNuevo(Receptor receptor)
     {
@@ -150,11 +144,6 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
     public void Detener()
     {
         ejecutarHilo = false;
-        try {
-            CerrarServidor();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     //-------------------------------------------------------------------------------------------
     //Estados del Servidor
@@ -163,63 +152,64 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
     {
         try
         {
-            IniciarServidor();
+            CSocket primario = new CSocket();
+            primario.IniciarServer(InformacionConfig.getInstance().getPuertoAlarma());
+
             secundarios = new ArrayList<>();
             hiloPrimario = new Thread(new HiloPrimario());
             hiloPrimario.start();
             do
             {
-                IniciarComponentesServidor();
                 RegistroEvento evento;
-                String rta = entrada.readLine();
+
+                primario.EsperarClientes();
+
+                String rta = primario.LeerString();
                 String[] mensaje =  rta.split("#");
-                /*
-                if(mensaje.getTipoEmergencia().equalsIgnoreCase(tipoSolicitud)) {
-                    NotificarEmergencia(mensaje);
-                    salida.println(MensajeEmisor);
-                }
-                else
-                    salida.println(MensajeEmisorF);
-                */
-                String fecha = getFecha();
-                if (mensaje[0].equals("0")) ///recibo emergencia de emisor
+
+                switch (mensaje[0])
                 {
-                    mensajeEmisor = new MensajeEmisor(mensaje);
-                    if (receptorTipoEmergencia(mensajeEmisor.getTipoEmergencia())) {
-
-                        enviarEmergencia(mensajeEmisor.getTipoEmergencia(),fecha); ///envia Emergencia a receptor
-                        salida.println(MensajeEmisor);
-                    }
-                    else
+                    case "0":  ///recibo emergencia de emisor
                     {
-                        salida.println(MensajeEmisorF);
+                        mensajeEmisor = new MensajeEmisor(mensaje);
+                        if (receptorTipoEmergencia(mensajeEmisor.getTipoEmergencia())) {
+
+                            enviarEmergencia(mensajeEmisor.getTipoEmergencia(),getFecha()); //envia Emergencia a receptor
+                            primario.EnviarString(MensajeEmisor);
+                        }
+                        else
+                        {
+                            primario.EnviarString(MensajeEmisorF);
+                        }
+
+                        evento = new RegistroEvento(primario.getIP(),Integer.toString(InformacionConfig.getInstance().getPuertoAlarma()),mensajeEmisor.getTipoEmergencia(),getFecha());
+                        notificarEvento(evento);
+                        break;
                     }
-
-                    evento = new RegistroEvento(socketCliente.getInetAddress().toString(),InformacionConfig.getInstance().getPuertoAlarma(),mensajeEmisor.getTipoEmergencia(),fecha);
-                    notificarEvento(evento);
-                }
-                else if(mensaje[0].equals("1")) ///registro un receptor
-                {
-                    Receptor receptor;
-                    String tipoSolicitudes = "";
-
-                    mensajeReceptor = new MensajeReceptor(mensaje);
-                    receptor = new Receptor(socketCliente.getInetAddress().toString().substring(1),Integer.parseInt(mensajeReceptor.getPuerto()),mensajeReceptor.getTipoEmergencias());
-                    receptores.add(receptor);
-                    EnviarReceptorNuevo(receptor);
-                    StringBuilder sb = new StringBuilder();
-                    for(String s : receptor.getTipoSolicitudes())
+                    case "1": ///registro un receptor
                     {
-                        tipoSolicitudes = sb.append(s).toString();
+                        Receptor receptor;
+                        String tipoSolicitudes = "";
+
+                        mensajeReceptor = new MensajeReceptor(mensaje);
+                        receptor = new Receptor(primario.getIP().substring(1),Integer.parseInt(mensajeReceptor.getPuerto()),mensajeReceptor.getTipoEmergencias());
+                        receptores.add(receptor);
+                        EnviarReceptorNuevo(receptor);
+                        StringBuilder sb = new StringBuilder();
+                        for(String s : receptor.getTipoSolicitudes())
+                        {
+                            tipoSolicitudes = sb.append(s).toString();
+                        }
+                        evento = new RegistroEvento(primario.getIP(),Integer.toString(InformacionConfig.getInstance().getPuertoAlarma()),tipoSolicitudes,getFecha());
+                        notificarEvento(evento);
+                        break;
                     }
-                    evento = new RegistroEvento(socketCliente.getInetAddress().toString(),InformacionConfig.getInstance().getPuertoAlarma(),tipoSolicitudes,fecha);
-                    notificarEvento(evento);
                 }
 
                 //CerrarComponentesServidor();
+                primario.CerrarClient();
             }
             while(ejecutarHilo);
-            CerrarServidor();
         }
         catch(Exception e)
         {
@@ -286,28 +276,6 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         }
         while (1 != 0);
     }
-
-    private void IniciarServidor() throws IOException
-    {
-        socketServidor = new ServerSocket(Integer.parseInt(InformacionConfig.getInstance().getPuertoAlarma()));
-    }
-    private void IniciarComponentesServidor() throws IOException
-    {
-        socketCliente = socketServidor.accept();
-        entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-        salida = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socketCliente.getOutputStream())), true);
-    }
-    private void CerrarServidor() throws IOException
-    {
-        socketServidor.close();
-    }
-    private void CerrarComponentesServidor() throws IOException
-    {
-        entrada.close();
-        salida.close();
-        socketCliente.close();
-    }
-
     public Boolean receptorTipoEmergencia (String tipoSolicitud) {
         int i = 0;
         while (i < receptores.size() && receptores.get(i).getTipoSolicitudes().stream().filter(s -> s.equalsIgnoreCase(tipoSolicitud)).count() == 0) {
@@ -315,51 +283,38 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         }
         return (i<receptores.size());
     }
-
-
     public String getFecha() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
 
-
     public void enviarEmergencia(String tipoSolicitud, String fecha)
     {
-        Socket socketCliente = null;
-
-        BufferedReader entrada = null; //leer texto de secuencia de entrada
-        PrintWriter salida = null; //crear y escribir archivos
+        CSocket receptor = new CSocket();
         RegistroEvento evento;
-        BufferedReader sc = new BufferedReader( new InputStreamReader(System.in));
-        for(Receptor receptor : receptores) {
-             if(receptor.getTipoSolicitudes().stream().filter(s -> s.equalsIgnoreCase(tipoSolicitud)).count() > 0) {
 
-                 try {
-                     socketCliente = new Socket();
-                     SocketAddress socketAddress = new InetSocketAddress(receptor.getIP(), receptor.getPuerto());
-                     socketCliente.setSoTimeout(10000);
-                     socketCliente.connect(socketAddress, 1000);
-                     entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-                     salida = new PrintWriter(socketCliente.getOutputStream(), true);
-                     evento = new RegistroEvento(socketAddress.toString(),receptor.getPuerto().toString(),tipoSolicitud,fecha);
-                     //Manda la emergencia
-                     salida.println(tipoSolicitud + "#" + fecha + "#" + mensajeEmisor.getUbicacion());
+        for(Receptor r : receptores) {
+            if(r.getTipoSolicitudes().stream().filter(s -> s.equalsIgnoreCase(tipoSolicitud)).count() > 0) {
+                receptor.IniciarClient(r.getIP(), r.getPuerto());
+                if (receptor.ConectarseServidor()!= null)
+                {
+                    receptor.ConectarseServidor();
+                    evento = new RegistroEvento(r.getIP(), Integer.toString(r.getPuerto()) ,tipoSolicitud,fecha);
 
-                     notificarEvento(evento);
-                     //Recibe la confirmacion
-                    /// String mensaje = entrada.readLine();
-                     ///envia mensaje a emisor
+                    //Manda la emergencia
+                    receptor.EnviarString(tipoSolicitud + "#" + fecha + "#" + mensajeEmisor.getUbicacion());
 
-                     salida.close();
-                     entrada.close();
-                     sc.close();
-                     socketCliente.close();
-                 } catch (Exception e) {
-                     System.out.println("Tiempo de espera agotado para conectar al host");
-                 }
-             }
-        };
+                    notificarEvento(evento);
+
+                    receptor.CerrarClient();
+                }
+                else
+                {
+                    System.out.println("Tiempo de espera agotado para conectar al host");
+                }
+            }
+        }
     }
 
     private void notificarRol(String rol)

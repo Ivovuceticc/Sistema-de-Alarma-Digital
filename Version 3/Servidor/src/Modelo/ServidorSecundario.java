@@ -4,16 +4,19 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ServidorSecundario {
-    private Socket cliente;
-    private PrintWriter salida;
+    private ICSocket socket;
 
-    public ServidorSecundario(Socket cliente, PrintWriter salida)
+    public ServidorSecundario(ICSocket socket)
     {
-        this.cliente = cliente;
-        this.salida = salida;
+        this.socket = socket;
     }
     public void EnviarReceptor(Receptor receptor)
     {
-        salida.println(receptor);
+        socket.EnviarString(receptor.toString());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return socket.equals(obj);
     }
 }

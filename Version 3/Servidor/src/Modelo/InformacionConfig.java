@@ -51,14 +51,14 @@ public class InformacionConfig {
         }
     }
 
-    public String getPuertoAlarma(){
-        return this.puertoAlarma;
+    public int getPuertoAlarma(){
+        return Integer.parseInt(this.puertoAlarma);
     }
-    public String getPuertoServidor(){
-        return this.puertoServidor;
+    public int getPuertoServidor(){
+        return Integer.parseInt(this.puertoServidor);
     }
-    public String getPuertoMonitor(){
-        return this.puertoMonitor;
+    public int getPuertoMonitor(){
+        return Integer.parseInt(this.puertoMonitor);
     }
 
 }

@@ -6,51 +6,75 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-public class CSoket {
+public class CSocket implements ICSocket {
 
     private ServerSocket socketServidor = null;
     private Socket socketCliente = null;
+    SocketAddress socketAddress = null;
     private BufferedReader entrada = null;
     private PrintWriter salida = null;
 
-    public void IniciarServer()
+    public void IniciarServer(int puerto)
     {
         try {
-            socketServidor = new ServerSocket(Integer.parseInt(InformacionConfig.getInstance().getPuertoServidor()));
+            socketServidor = new ServerSocket(puerto);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public ICSocket EsperarClientes()
+    {
+        socketCliente = null;
+        try {
             socketCliente = socketServidor.accept();
             entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
             salida = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socketCliente.getOutputStream())), true);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
+        return this;
     }
     public void IniciarClient(String ip, int puerto)
     {
         try {
             socketCliente = new Socket();
-            SocketAddress socketAddress = new InetSocketAddress(ip, puerto);
+            socketAddress = new InetSocketAddress(ip, puerto);
             socketCliente.setSoTimeout(10000);
-            socketCliente.connect(socketAddress, 1000);
-            entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-            salida = new PrintWriter(socketCliente.getOutputStream(), true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+    public ICSocket ConectarseServidor()
+    {
+        try {
+            socketCliente.connect(socketAddress, 1000);
+            entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
+            salida = new PrintWriter(socketCliente.getOutputStream(), true);
+        } catch (IOException e) {
+            return null;
+        }
+        return this;
+    }
 
+    @Override
     public String LeerString()
     {
         String mensaje = null;
         try {
             mensaje = entrada.readLine();
         } catch (IOException e) {
-            throw new RuntimeException(e);
         }
         return mensaje;
     }
+    @Override
     public void EnviarString(String mensaje)
     {
         salida.println(mensaje);
+    }
+
+    public String getIP()
+    {
+        return socketCliente.getInetAddress().toString();
     }
 
     public void CerrarServer()

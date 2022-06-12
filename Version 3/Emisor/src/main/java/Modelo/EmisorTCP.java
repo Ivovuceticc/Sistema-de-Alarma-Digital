@@ -1,6 +1,7 @@
 package Modelo;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -38,80 +39,7 @@ public class EmisorTCP extends Observable implements Runnable {
         addObserver(observador);
     }
 
-    //TESTING
     @Override
-    public void run() {
-        String tipoSolicitud = this.tipoSolicitud;
-        Socket socketCliente = null;
-        Boolean exitoEmergencia = false;
-
-        BufferedReader entrada = null; //leer texto de secuencia de entrada
-        PrintWriter salida = null; //crear y escribir archivos
-        while (!exitoEmergencia) {
-            try {
-                if (tipoSolicitud.equals("emergencia"))
-                {
-                    socketCliente = new Socket();
-                    SocketAddress socketAddress = new InetSocketAddress("192.168.0.14", 1212);
-                    socketCliente.setSoTimeout(10000);
-                    socketCliente.connect(socketAddress, 1000);
-                    salida = new PrintWriter(socketCliente.getOutputStream(), true);
-
-
-                    //Manda la emergencia
-                    salida.println("primario");
-
-                    exitoEmergencia = true;
-                    salida.close();
-                    socketCliente.close();
-                }
-                else {
-                    if (tipoSolicitud.equals("incendio"))
-                    {
-                        socketCliente = new Socket();
-                        SocketAddress socketAddress = new InetSocketAddress("192.168.0.14", 1112);
-                        socketCliente.setSoTimeout(10000);
-                        socketCliente.connect(socketAddress, 1000);
-                        entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-                        salida = new PrintWriter(socketCliente.getOutputStream(), true);
-
-
-                        //Manda la emergencia
-                        salida.println("secundario"+"#192.168.0.14"+"#1113");
-
-                        exitoEmergencia = true;
-                        salida.close();
-                        entrada.close();
-                        socketCliente.close();
-                    }
-                    else {
-                        socketCliente = new Socket();
-                        SocketAddress socketAddress = new InetSocketAddress("192.168.0.14", 1113);
-                        socketCliente.setSoTimeout(10000);
-                        socketCliente.connect(socketAddress, 1000);
-                        entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-                        salida = new PrintWriter(socketCliente.getOutputStream(), true);
-
-
-                        //Manda la emergencia
-                        salida.println("000"+"#192.168.0.14"+"#1113");
-                        salida.println("010"+"#192.168.0.15"+"#1115");
-                        salida.println("011"+"#192.168.0.18"+"#1116");
-
-                        exitoEmergencia = true;
-                        salida.close();
-                        entrada.close();
-                        socketCliente.close();
-                    }
-                }
-            } catch (Exception e) {
-            }
-        }
-        hiloEmisor = null;
-        NotificarEmergencia("emergenciaDisponible");
-    }
-
-    /*@Override
     public void run() {
         String tipoSolicitud = this.tipoSolicitud;
         Socket socketCliente = null;
@@ -157,7 +85,7 @@ public class EmisorTCP extends Observable implements Runnable {
         }
         hiloEmisor = null;
         NotificarEmergencia("emergenciaDisponible");
-    }*/
+    }
     public void EnviarEmergencia(String tipoSolicitud, String fecha)
     {
         if (hiloEmisor == null)

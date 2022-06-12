@@ -21,7 +21,6 @@ public class Controlador  implements ActionListener, Observer, WindowListener {
         this.vistaServer = new VentanaServidor();
         //this.vistaServer.addActionListener(this);
         this.servidorTCP = new ServidorTCP(this);
-        servidorTCP.iniciar();
     }
 
     @Override
@@ -67,6 +66,12 @@ public class Controlador  implements ActionListener, Observer, WindowListener {
     //Le manda el String al log del server.
     @Override
     public void update(Observable o, Object arg) {
-        this.vistaServer.agregaLogCentral((RegistroEvento) arg);
+        if (o != null)
+        {
+            this.vistaServer.agregaLogCentral((RegistroEvento) arg);
+        }
+        else {
+            this.vistaServer.setRol((String)arg);
+        }
     }
 }

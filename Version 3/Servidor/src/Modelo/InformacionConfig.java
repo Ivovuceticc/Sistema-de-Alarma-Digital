@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class InformacionConfig {
-    private String puerto;
+    private String puertoAlarma;
+    private String puertoServidor;
+    private String puertoMonitor;
     private static InformacionConfig instance = null;
 
     private InformacionConfig(){
@@ -21,7 +23,7 @@ public class InformacionConfig {
     }
 
     //Se obtiene solo una vez toda la informacion del archivo de configuracion.
-    public static InformacionConfig getInstance(){
+    public static synchronized InformacionConfig getInstance(){
         if(InformacionConfig.instance == null){
             InformacionConfig.instance = new InformacionConfig();
         }
@@ -40,15 +42,23 @@ public class InformacionConfig {
 
             Node nNode = nList.item(0);
             Element eElement = (Element) nNode;
-            this.puerto = eElement.getElementsByTagName("puerto").item(0).getTextContent();
+            this.puertoAlarma = eElement.getElementsByTagName("puertoAlarma").item(0).getTextContent();
+            this.puertoMonitor = eElement.getElementsByTagName("puertoMonitor").item(0).getTextContent();
+            this.puertoServidor = eElement.getElementsByTagName("puertoServidor").item(0).getTextContent();
         }
         catch(IOException | ParserConfigurationException | SAXException e) {
             System.out.println(e);
         }
     }
 
-    public String getPuerto(){
-        return this.puerto;
+    public String getPuertoAlarma(){
+        return this.puertoAlarma;
+    }
+    public String getPuertoServidor(){
+        return this.puertoServidor;
+    }
+    public String getPuertoMonitor(){
+        return this.puertoMonitor;
     }
 
 }

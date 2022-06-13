@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MonitorServer {
     private List<Socket> backupServers = new ArrayList<>();
@@ -83,9 +84,6 @@ public class MonitorServer {
                 }
             }
         }while(backupServers.size() == 0);
-        while (primary == null) {
-            elegirPrimary();
-        }
 
     }
 
@@ -96,23 +94,23 @@ public class MonitorServer {
         for (Server sv : config.getServers()) {
 
             SocketAddress address = new InetSocketAddress(sv.getAddress(), sv.getPort());
-            if (!connectedServers.contains(sv)) {
+            if (!connectedServers.stream().anyMatch((Server serv) -> sv.getPort() == serv.getPort())) {
                 try {
                 s = new Socket();
                 s.setSoTimeout(500);
                     s.connect(address);
                     if (s.isConnected()) {
-                    /*     if (primario == null)
+                       if (primario == null)
                          {
                              primary = s;
                              primario = sv;
                              enviarAvisoATodos();
-                         }*/
-                        /*                        else {*/
-                        backupServers.add(s);
-                        salida = new PrintWriter(s.getOutputStream(), true);
-                        salida.println("secundario#" + primary.getInetAddress() + "#" + primary.getPort());
-                        /*                         }*/
+                         }
+                        else {
+                           backupServers.add(s);
+                           salida = new PrintWriter(s.getOutputStream(), true);
+                           salida.println("secundario#" + primary.getInetAddress() + "#" + primary.getPort());
+                       }
                         connectedServers.add(sv);
                     }
                 } catch(Exception e){
@@ -134,28 +132,32 @@ public class MonitorServer {
             ///ping primary
             try {
                 salida = new PrintWriter(primary.getOutputStream(), true);
+                entrada = new BufferedReader(new InputStreamReader(primary.getInputStream()));
                 salida.println("ping");
                 //System.out.println("ping");
-                entrada = new BufferedReader(new InputStreamReader(primary.getInputStream()));
-                System.out.println(entrada.readLine());
+
+                entrada.readLine();
             } catch (Exception e) {
                 System.out.println("Fallo primario, cambiando a secundario..");
-                connectedServers.remove(primario);
+                System.out.println(connectedServers.remove(primario));
                 primario = null;
                 elegirPrimary();
                 refrescarServers();
+
+
             }
             ///ping secundarios
             refrescarServers();
-            for (Socket sv : backupServers) {
+            for (int i = 0; i < backupServers.size(); i++) {
                 try {
-                    entrada = new BufferedReader(new InputStreamReader(sv.getInputStream()));
-                    salida = new PrintWriter(sv.getOutputStream(), true);
+                    entrada = new BufferedReader(new InputStreamReader(backupServers.get(i).getInputStream()));
+                    salida = new PrintWriter(backupServers.get(i).getOutputStream(), true);
                     salida.println("ping");
-                   // System.out.println(entrada.readLine());
+                    entrada.readLine();
+                    // System.out.println(entrada.readLine());
                 } catch (Exception e) {
-                    connectedServers.remove(connectedServers.stream().filter((Server s) -> s.getPort() == sv.getPort()).findFirst());
-                     refrescarServers();
+                    removeDisconnected();
+                    refrescarServers();
                 }
 
             }
@@ -163,5 +165,16 @@ public class MonitorServer {
         }
     }
 
-
+        public void removeDisconnected() {
+            backupServers= backupServers.stream().filter((Socket socket) -> socket != null).collect(Collectors.toList());
+            for (Server s : connectedServers)
+            {
+                if (!backupServers.stream().anyMatch((Socket socket) ->  s.getPort() == socket.getPort()))
+                {
+                    connectedServers.remove(s);
+                }
+            }
+        }
 }
+
+

@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MonitorServer {
-    private List<Socket> backupServers;
+    private List<Socket> backupServers = new ArrayList<>();
+    private List<Server> connectedServers;
     private ReadConfig config;
+    private Server primario;
     private Socket primary = null;
 
     public MonitorServer() throws IOException {
@@ -18,27 +20,31 @@ public class MonitorServer {
         monitoringServers();
     }
 
-    public void enviarAviso() throws IOException {
+///avisa al primario su rol y a los secundarios la ip del primario
+    public void enviarAvisoATodos() throws IOException {
         PrintWriter salida = new PrintWriter(primary.getOutputStream(), true);
-        salida.println("Primario");
+        salida.println("primario");
+        System.out.println("Se eligio un primario");
+        for (Socket s : backupServers) {
+                salida = new PrintWriter(s.getOutputStream(), true);
+                salida.println("secundario#"+primary.getInetAddress()+"#"+primary.getPort());
+        }
     }
 
 
     public void elegirPrimary() throws IOException {
         int i = 0;
-        Socket monitorConn;
-        while (primary == null && i < backupServers.size()) {
+        while (primario == null && i < backupServers.size()) {
+           // System.out.println(backupServers.size());
             try {
-//                monitorConn = new Socket();
-//                SocketAddress address = new InetSocketAddress(servers.get(i).getAddress(), servers.get(i).getPort());
-//                monitorConn.connect(address);
                 if (backupServers.get(i).isConnected()) {
                     primary = backupServers.get(i);
+                    primario = new Server(primary.getPort(),primary.getInetAddress().toString());
                     backupServers.remove(primary);
-                    enviarAviso(); ///avisa al server que cambie el rol
+                    enviarAvisoATodos(); ///avisa al server que cambie el rol
                 }
-            } catch (java.net.SocketTimeoutException e) {
-                System.out.println("Server timeout.. buscando siguiente");
+            } catch (Exception e) {
+                System.out.println(e.getClass());
 
             }
             i++;
@@ -48,22 +54,76 @@ public class MonitorServer {
 
     public void filtrarServers() throws IOException {
 
+        Socket s;
         int i = 0;
-        for (Server sv : config.getServers()) {
-            SocketAddress address = new InetSocketAddress(sv.getAddress(), sv.getPort());
-            backupServers.add(new Socket());
-            backupServers.get(i).connect(address);
-            backupServers.get(i).setSoTimeout(1000);
-        }
+        ///filtro desde el config y abro cada uno de los sockets
+        do {
+            backupServers = new ArrayList<>();
+            connectedServers = new ArrayList<>();
+            for (Server sv : config.getServers()) {
+                try {
+                    SocketAddress address = new InetSocketAddress(sv.getAddress(), sv.getPort());
+                    s = new Socket();
+                    s.setSoTimeout(500);
+                    s.connect(address);
+                    if (s.isConnected()) {
+                        if (primary == null)
+                        {
+                         primary = s;
+                         primario = sv;
+                         enviarAvisoATodos();
+                        }
+                        else {
+                            backupServers.add(s);
+                        }
+                        connectedServers.add(sv);
+                    }
+                } catch (Exception e) {
+                    System.out.println("connection timed out..");
+                }
+            }
+        }while(backupServers.size() == 0);
         while (primary == null) {
             elegirPrimary();
         }
 
     }
 
+    public void refrescarServers()
+    {
+        Socket s;
+        PrintWriter salida;
+        for (Server sv : config.getServers()) {
+
+            SocketAddress address = new InetSocketAddress(sv.getAddress(), sv.getPort());
+            if (!connectedServers.contains(sv)) {
+                try {
+                s = new Socket();
+                s.setSoTimeout(500);
+                    s.connect(address);
+                    if (s.isConnected()) {
+                    /*     if (primario == null)
+                         {
+                             primary = s;
+                             primario = sv;
+                             enviarAvisoATodos();
+                         }*/
+                        /*                        else {*/
+                        backupServers.add(s);
+                        salida = new PrintWriter(s.getOutputStream(), true);
+                        salida.println("secundario#" + primary.getInetAddress() + "#" + primary.getPort());
+                        /*                         }*/
+                        connectedServers.add(sv);
+                    }
+                } catch(Exception e){
+                System.out.println("connection timed out..");
+            }
+        }
+        }
+    }
+
 
     public void monitoringServers() throws IOException {
-        Socket socketPrimary = new Socket();
         PrintWriter salida;
         BufferedReader entrada;
         filtrarServers();
@@ -75,21 +135,27 @@ public class MonitorServer {
             try {
                 salida = new PrintWriter(primary.getOutputStream(), true);
                 salida.println("ping");
+                //System.out.println("ping");
                 entrada = new BufferedReader(new InputStreamReader(primary.getInputStream()));
-                msg = entrada.readLine();
-            } catch (java.net.SocketTimeoutException e) {
-                primary.close();
-                primary = null;
-                filtrarServers();
+                System.out.println(entrada.readLine());
+            } catch (Exception e) {
+                System.out.println("Fallo primario, cambiando a secundario..");
+                connectedServers.remove(primario);
+                primario = null;
+                elegirPrimary();
+                refrescarServers();
             }
+            ///ping secundarios
+            refrescarServers();
             for (Socket sv : backupServers) {
                 try {
                     entrada = new BufferedReader(new InputStreamReader(sv.getInputStream()));
                     salida = new PrintWriter(sv.getOutputStream(), true);
                     salida.println("ping");
-                    System.out.println(entrada.readLine());
-                } catch (java.net.SocketTimeoutException e) {
-                    backupServers.remove(sv);
+                   // System.out.println(entrada.readLine());
+                } catch (Exception e) {
+                    connectedServers.remove(connectedServers.stream().filter((Server s) -> s.getPort() == sv.getPort()).findFirst());
+                     refrescarServers();
                 }
 
             }

@@ -40,11 +40,11 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         notificarRol("Ninguno");
         //serPrimario();
         //serSecundario("192.168.0.14",1211);
-        serPrimario();
-        receptores.add(new Receptor("192.111.11.1", 1234, "001"));
-        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
-        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
-        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
+        ///serPrimario();
+//        receptores.add(new Receptor("192.111.11.1", 1234, "001"));
+//        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
+//        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
+//        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
 
     }
     //-------------------------------------------------------------------------------------------

@@ -26,6 +26,9 @@ public class ReadConfig {
         return instance;
     }
 
+    public ReadConfig() {
+        readConfigFile();
+    }
 
     private void readConfigFile() {
         try {
@@ -36,12 +39,15 @@ public class ReadConfig {
             Document document = db.parse(file);
             document.getDocumentElement().normalize();
 
-            NodeList nList = document.getElementsByTagName("informacion");
+            NodeList listaServers = document.getElementsByTagName("server");
 
-            Node nNode = nList.item(0);
-            Element eElement = (Element) nNode;
-            sv = new Server(Integer.parseInt(eElement.getElementsByTagName("port").item(0).getTextContent()),eElement.getElementsByTagName("address").item(0).getTextContent());
-            servers.add(sv);
+            for (int i = 0 ; i < listaServers.getLength() ; i++) {
+                Node nodo = listaServers.item(i);
+                if (nodo.getNodeType() == Node.ELEMENT_NODE) {
+                    Element server = (Element) nodo;
+                    servers.add(new Server(Integer.parseInt(server.getElementsByTagName("port").item(0).getTextContent()), server.getElementsByTagName("address").item(0).getTextContent()));
+                }
+            }
         }
         catch(IOException | ParserConfigurationException | SAXException e) {
             System.out.println(e);

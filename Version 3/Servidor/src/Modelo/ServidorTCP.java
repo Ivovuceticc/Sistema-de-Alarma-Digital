@@ -15,19 +15,14 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
     private Thread hiloMonitor = null;
     private Thread hiloPrimario = null;
     private boolean ejecutarHilo;
-
-    private boolean aceptaEM = false;
-    private boolean aceptaI = false;
-    private boolean aceptaP = false;
     private String MensajeEmisor = "recibido";
     private String MensajeEmisorF = "Solicitud invalida";
-
-    private MensajeEmisor mensajeEmisor;
-    private MensajeReceptor mensajeReceptor;
     private List<Receptor> receptores;
     private List<ServidorSecundario> secundarios;
     private State servidorState;
+    private ArrayList<RegistroEvento> registroLog;
 
+    private boolean conectado = false;
     private Observer observador;
 
     public ServidorTCP(Observer observador){
@@ -37,15 +32,10 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
 
         hiloMonitor = new Thread(new HiloMonitor());
         hiloMonitor.start();
-        notificarRol("Ninguno");
-        //serPrimario();
-        //serSecundario("192.168.0.14",1211);
-        ///serPrimario();
-//        receptores.add(new Receptor("192.111.11.1", 1234, "001"));
-//        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
-//        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
-//        receptores.add(new Receptor("192.111.11.2", 1234, "001"));
 
+        registroLog = new ArrayList<RegistroEvento>();
+
+        notificarRol("Ninguno");
     }
     //-------------------------------------------------------------------------------------------
     //HILOS
@@ -100,14 +90,22 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
             do
             {
                 ICSocket socket = servidor.EsperarClientes();
-                if (!SecundariosContenido(socket))
+                String mensaje = servidor.LeerString();
+                if (mensaje.equals("0"))
                 {
-                    String rta = servidor.LeerString();
+                    ServidorSecundario secundario = new ServidorSecundario(socket);
                     for (Receptor r : receptores)
                     {
-                        servidor.EnviarString(r.toString());
+                        secundario.EnviarReceptor(r);
                     }
-                    AgregarSecundario(socket);
+                    for (RegistroEvento log : registroLog)
+                    {
+                        secundario.EnviarLog(log);
+                    }
+                    if (!SecundariosContenido(socket))
+                    {
+                        secundarios.add(secundario);
+                    }
                 }
             }
             while (ejecutando);
@@ -115,9 +113,6 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
     }
     //-------------------------------------------------------------------------------------------
     //synchronized metodos
-    private synchronized void AgregarSecundario(ICSocket socket){
-        secundarios.add(new ServidorSecundario(socket));
-    }
     private synchronized boolean SecundariosContenido(ICSocket socket)
     {
         for (ServidorSecundario s : secundarios)
@@ -134,6 +129,13 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         for(ServidorSecundario s : secundarios)
         {
             s.EnviarReceptor(receptor);
+        }
+    }
+    private synchronized void EnviarLogNuevo(RegistroEvento evento)
+    {
+        for(ServidorSecundario s : secundarios)
+        {
+            s.EnviarLog(evento);
         }
     }
     //-------------------------------------------------------------------------------------------
@@ -162,8 +164,6 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
             hiloPrimario.start();
             do
             {
-                RegistroEvento evento;
-
                 primario.EsperarClientes();
 
                 String rta = primario.LeerString();
@@ -173,37 +173,26 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
                 {
                     case "0":  ///recibo emergencia de emisor
                     {
-                        mensajeEmisor = new MensajeEmisor(mensaje);
-                        if (receptorTipoEmergencia(mensajeEmisor.getTipoEmergencia())) {
-
-                            enviarEmergencia(mensajeEmisor.getTipoEmergencia(),getFecha()); //envia Emergencia a receptor
+                        MensajeEmisor mensajeEmisor = new MensajeEmisor(mensaje);
+                        if (receptorTipoEmergencia(mensajeEmisor.getTipoEmergencia()))
+                        {
+                            enviarEmergencia(mensajeEmisor.getTipoEmergencia(),getFecha(), mensajeEmisor.getUbicacion()); //envia Emergencia a receptor
                             primario.EnviarString(MensajeEmisor);
                         }
                         else
                         {
                             primario.EnviarString(MensajeEmisorF);
                         }
-
-                        evento = new RegistroEvento(primario.getIP(),Integer.toString(InformacionConfig.getInstance().getPuertoAlarma()),mensajeEmisor.getTipoEmergencia(),getFecha());
+                        RegistroEvento evento = new RegistroEvento("Mensaje de Emisor", primario.getIP().substring(1),Integer.toString(InformacionConfig.getInstance().getPuertoAlarma()),mensajeEmisor.getTipoEmergencia(),getFecha());
                         notificarEvento(evento);
+                        EnviarLogNuevo(evento);
                         break;
                     }
                     case "1": ///registro un receptor
                     {
-                        Receptor receptor;
-                        String tipoSolicitudes = "";
+                        MensajeReceptor mensajeReceptor = new MensajeReceptor(mensaje);
+                        AgregarReceptor(primario.getIP().substring(1), Integer.parseInt(mensajeReceptor.getPuerto()), mensajeReceptor.getTipoEmergencias());
 
-                        mensajeReceptor = new MensajeReceptor(mensaje);
-                        receptor = new Receptor(primario.getIP().substring(1),Integer.parseInt(mensajeReceptor.getPuerto()),mensajeReceptor.getTipoEmergencias());
-                        receptores.add(receptor);
-                        EnviarReceptorNuevo(receptor);
-                        StringBuilder sb = new StringBuilder();
-                        for(String s : receptor.getTipoSolicitudes())
-                        {
-                            tipoSolicitudes = sb.append(s).toString();
-                        }
-                        evento = new RegistroEvento(primario.getIP(),Integer.toString(InformacionConfig.getInstance().getPuertoAlarma()),tipoSolicitudes,getFecha());
-                        notificarEvento(evento);
                         break;
                     }
                 }
@@ -217,6 +206,25 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         {
         }
     }
+    void AgregarReceptor(String ip, int puerto, String solicitudes)
+    {
+        String tipoSolicitudes = "| ";
+        RegistroEvento evento;
+        Receptor receptor = new Receptor(ip, puerto, solicitudes);
+
+        receptores.add(receptor);
+
+        for(String s : receptor.getTipoSolicitudes())
+        {
+            tipoSolicitudes += s + " | ";
+        }
+        evento = new RegistroEvento("Nuevo receptor registrado", receptor.getIP(), receptor.getPuerto().toString(), tipoSolicitudes, getFecha());
+        notificarEvento(evento);
+
+        EnviarReceptorNuevo(receptor);
+        EnviarLogNuevo(evento);
+    }
+
     @Override
     public void runSecundario(String ip, int puerto) {
         boolean ejecucion = true;
@@ -225,7 +233,8 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         cliente.IniciarClient(ip, puerto);
         if (cliente.ConectarseServidor() != null)
         {
-            cliente.EnviarString("0");
+            cliente.EnviarString(conectado?"-":"0");
+            conectado=true;
             do {
                 String mensaje = cliente.LeerString();
                 if (mensaje == null || mensaje.equals("fin")) {
@@ -234,10 +243,21 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
                 else
                 {
                     String[] receptorMensaje = mensaje.split("#");
-                    Receptor receptor = new Receptor(receptorMensaje[0],Integer.parseInt(receptorMensaje[1]),receptorMensaje[2]);
-                    receptores.add(receptor);
-                    notificarEvento(new RegistroEvento(receptor.getIP(),receptor.getPuerto().toString(),
-                            receptor.getTipoSolicitudes().toString(),getFecha()));
+                    switch (receptorMensaje[0])
+                    {
+                        case "1":
+                        {
+                            receptores.add(new Receptor(receptorMensaje[1],Integer.parseInt(receptorMensaje[2]),receptorMensaje[3]));
+                        }
+                        break;
+                        case "2":
+                        {
+                            RegistroEvento evento = new RegistroEvento(mensaje.substring(2));
+                            registroLog.add(evento);
+                            notificarEvento(evento);
+                        }
+                        break;
+                    }
                 }
             }
             while (ejecucion);
@@ -251,7 +271,7 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
     }
     @Override
     public void serSecundario(String ip, int puerto) {
-        servidorState = new SecundarioState(this, ip, puerto);
+        servidorState = new SecundarioState(this, ip.substring(1), puerto+2);
         notificarRol(servidorState.getRol());
         Iniciar();
     }
@@ -275,10 +295,10 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
         return dtf.format(now);
     }
 
-    public void enviarEmergencia(String tipoSolicitud, String fecha)
+    public void enviarEmergencia(String tipoSolicitud, String fecha, String ubicacion)
     {
         CSocket receptor = new CSocket();
-        RegistroEvento evento;
+        //RegistroEvento evento;
 
         for(Receptor r : receptores) {
             if(r.getTipoSolicitudes().stream().filter(s -> s.equalsIgnoreCase(tipoSolicitud)).count() > 0) {
@@ -286,12 +306,12 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
                 if (receptor.ConectarseServidor()!= null)
                 {
                     receptor.ConectarseServidor();
-                    evento = new RegistroEvento(r.getIP(), Integer.toString(r.getPuerto()) ,tipoSolicitud,fecha);
+                    //evento = new RegistroEvento(r.getIP(), Integer.toString(r.getPuerto()) ,tipoSolicitud,fecha);
 
                     //Manda la emergencia
-                    receptor.EnviarString(tipoSolicitud + "#" + fecha + "#" + mensajeEmisor.getUbicacion());
+                    receptor.EnviarString(tipoSolicitud + "#" + fecha + "#" + ubicacion);
 
-                    notificarEvento(evento);
+                    //notificarEvento(evento);
 
                     receptor.CerrarClient();
                 }
@@ -310,18 +330,9 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
     }
     private void notificarEvento(RegistroEvento evento)
     {
+        registroLog.add(evento);
         setChanged();
         observador.update(this, evento);
         //notifyObservers(evento);
-    }
-
-    public void setAceptaEM(boolean resp){
-        this.aceptaEM = resp;
-    }
-    public void setAceptaI(boolean resp){
-        this.aceptaI = resp;
-    }
-    public void setAceptaP(boolean resp){
-        this.aceptaP = resp;
     }
 }

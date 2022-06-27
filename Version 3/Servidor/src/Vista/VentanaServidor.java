@@ -38,7 +38,7 @@ public class VentanaServidor extends JFrame implements IVistaServer{
 
     public void agregaLogCentral(RegistroEvento e)
     {
-        this.textArea_Server.append("IP:"+e.getIp()+"\t Puerto: "+e.getPuerto()+"\t Fecha:"+e.getFechaYHora()+"\t tipoSolicitud: "+e.getTiposDeSolicitud()+ "\n");
+        this.textArea_Server.append(e.getTipo()+ ":\n IP:"+e.getIp()+"\t Puerto: "+e.getPuerto()+"\t Fecha:"+e.getFechaYHora()+"\t tipoSolicitud: "+e.getTiposDeSolicitud()+ "\n");
     }
 
     public void addActionListener(ActionListener listenner){

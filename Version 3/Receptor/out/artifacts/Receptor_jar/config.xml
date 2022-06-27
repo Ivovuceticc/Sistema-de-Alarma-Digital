@@ -2,14 +2,14 @@
 
 <config>
     <Receptor>
-	<puerto>1005</puerto>
+	<puerto>1000</puerto>
     </Receptor>
     <Servidor1>
 	<ip>192.168.0.14</ip>
-	<puerto>1111</puerto>
+	<puerto>1110</puerto>
     </Servidor1>
     <Servidor2>
 	<ip>192.168.0.14</ip>
-	<puerto>1211</puerto>
+	<puerto>1210</puerto>
     </Servidor2>
 </config>

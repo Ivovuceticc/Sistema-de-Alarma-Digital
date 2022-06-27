@@ -12,7 +12,11 @@ public class ServidorSecundario {
     }
     public void EnviarReceptor(Receptor receptor)
     {
-        socket.EnviarString(receptor.toString());
+        socket.EnviarString("1#"+receptor.toString());
+    }
+    public void EnviarLog(RegistroEvento evento)
+    {
+        socket.EnviarString("2#"+evento.toString());
     }
 
     @Override

@@ -72,7 +72,7 @@ public void avisoSecundario(Socket s) throws IOException {
                         if (sv != primario) {
                             SocketAddress address = new InetSocketAddress(sv.getAddress(), sv.getPort());
                             s = new Socket();
-                            s.setSoTimeout(200);
+                            s.setSoTimeout(50);
                             s.connect(address);
                             sv.setSocket(s);
                             System.out.println("Se agreego un server");
@@ -114,6 +114,7 @@ public void avisoSecundario(Socket s) throws IOException {
                 nuevaConexion("Fallo conexion con el primario, buscando...");
                 System.out.println("Fallo primario, cambiando a secundario..");
                 primario = null;
+                elegirPrimary();
                 filtrarServers();
 
 

@@ -1,6 +1,6 @@
 <?xml version = "1.0" encoding = "UTF-8" standalone = "no" ?>
 <informacion>
     <puertoAlarma>1110</puertoAlarma>
-    <puertoMonitor>1212</puertoMonitor>
+    <puertoMonitor>1112</puertoMonitor>
     <puertoServidor>1114</puertoServidor>
 </informacion>

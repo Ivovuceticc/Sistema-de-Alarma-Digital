@@ -47,8 +47,8 @@ public class EmisorTCP extends Observable {
             try {
                 socketCliente = new Socket();
                 SocketAddress socketAddress = new InetSocketAddress(receptor.getIP(), receptor.getPuerto());
-                socketCliente.setSoTimeout(10000);
-                socketCliente.connect(socketAddress, 1000);
+                socketCliente.setSoTimeout(100);
+                socketCliente.connect(socketAddress, 100);
                 entrada = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
                 salida = new PrintWriter(socketCliente.getOutputStream(), true);
 

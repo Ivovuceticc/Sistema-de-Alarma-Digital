@@ -253,7 +253,7 @@ public class ServidorTCP extends Observable implements Runnable, IServidorState 
                         case "2":
                         {
                             RegistroEvento evento = new RegistroEvento(mensaje.substring(2));
-                            registroLog.add(evento);
+                            //registroLog.add(evento);
                             notificarEvento(evento);
                         }
                         break;

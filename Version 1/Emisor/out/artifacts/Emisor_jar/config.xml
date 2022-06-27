@@ -6,15 +6,15 @@
     </ubicacion>
     <Receptores>
         <Receptor>
-            <ip>192.168.0.11</ip>
+            <ip>192.168.0.14</ip>
             <puerto>1111</puerto>
         </Receptor>
         <Receptor>
-            <ip>192.168.0.11</ip>
+            <ip>192.168.0.14</ip>
             <puerto>1112</puerto>
         </Receptor>
         <Receptor>
-            <ip>192.168.0.11</ip>
+            <ip>192.168.0.14</ip>
             <puerto>1113</puerto>
         </Receptor>
     </Receptores>

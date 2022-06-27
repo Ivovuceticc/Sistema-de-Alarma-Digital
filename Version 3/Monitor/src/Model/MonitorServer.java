@@ -1,5 +1,7 @@
 package Model;
 
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,6 +9,8 @@ import java.io.PrintWriter;
 import java.net.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.Thread.sleep;
 
 public class MonitorServer extends Observable {
     private List<Server> connectedServers =new ArrayList<>();;
@@ -67,7 +71,6 @@ public void avisoSecundario(Socket s) throws IOException {
         ///filtro desde el config y abro cada uno de los sockets
             for (Server sv : config.getServers()) {
                 if (connectedServers.stream().noneMatch((Server serv) -> sv.getPort() == serv.getPort())) {
-
                     try {
                         if (sv != primario) {
                             SocketAddress address = new InetSocketAddress(sv.getAddress(), sv.getPort());
@@ -84,7 +87,7 @@ public void avisoSecundario(Socket s) throws IOException {
                             }
                         }
                     } catch (Exception e) {
-                        System.out.println("connection timed out..");
+                        System.out.println("connection timed out...");
                     }
                 }
             }
@@ -112,7 +115,7 @@ public void avisoSecundario(Socket s) throws IOException {
                 entrada.readLine();
             } catch (Exception e) {
                 nuevaConexion("Fallo conexion con el primario, buscando...");
-                System.out.println("Fallo primario, cambiando a secundario..");
+                System.out.println("Fallo primario, cambiando a secundario...");
                 primario = null;
                 elegirPrimary();
                 filtrarServers();
@@ -120,6 +123,11 @@ public void avisoSecundario(Socket s) throws IOException {
 
             }
             ///ping secundarios
+            try {
+                sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             try {
 
             for (int i = 0; i < connectedServers.size(); i++) {
@@ -134,8 +142,8 @@ public void avisoSecundario(Socket s) throws IOException {
             }
             catch (Exception e) {
                 connectedServers.remove(s);
-                nuevaConexion("Se perdio conexion con server secundario, buscando..");
-                System.out.println("Se perdio conexion con server secundario, buscando..");
+                nuevaConexion("Se perdio conexion con server secundario, buscando...");
+                System.out.println("Se perdio conexion con server secundario, buscando...");
                 filtrarServers();
 
             }

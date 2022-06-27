@@ -65,35 +65,29 @@ public void avisoSecundario(Socket s) throws IOException {
 
         int i = 0;
         ///filtro desde el config y abro cada uno de los sockets
-        do {
             for (Server sv : config.getServers()) {
-                 if (connectedServers.stream().noneMatch((Server serv) -> sv.getPort() == serv.getPort())) {
+                if (connectedServers.stream().noneMatch((Server serv) -> sv.getPort() == serv.getPort())) {
 
-                     try {
-                         if (sv != primario) {
-                             SocketAddress address = new InetSocketAddress(sv.getAddress(), sv.getPort());
-                             s = new Socket();
-                             s.setSoTimeout(200);
-                             s.connect(address);
-                             sv.setSocket(s);
-                             System.out.println("Se agreego un server");
-                             connectedServers.add(sv);
-                             if (primario == null) {
-                                 elegirPrimary();
-                             } else {
-                                 avisoSecundario(s);
-                             }
-                         }
-                         else
-                         {
-                             System.out.println("Coincidio con primario");
-                         }
-                     }catch (Exception e) {
-                         System.out.println("connection timed out..");
-                     }
-                 }
+                    try {
+                        if (sv != primario) {
+                            SocketAddress address = new InetSocketAddress(sv.getAddress(), sv.getPort());
+                            s = new Socket();
+                            s.setSoTimeout(200);
+                            s.connect(address);
+                            sv.setSocket(s);
+                            System.out.println("Se agreego un server");
+                            connectedServers.add(sv);
+                            if (primario == null) {
+                                elegirPrimary();
+                            } else {
+                                avisoSecundario(s);
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.out.println("connection timed out..");
+                    }
+                }
             }
-        }while(connectedServers.size() == 0);
 
     }
 
@@ -109,6 +103,7 @@ public void avisoSecundario(Socket s) throws IOException {
         while (true) {
 
             ///ping primary
+            filtrarServers();
             try {
                 salida = new PrintWriter(primario.getSocket().getOutputStream(), true);
                 entrada = new BufferedReader(new InputStreamReader(primario.getSocket().getInputStream()));

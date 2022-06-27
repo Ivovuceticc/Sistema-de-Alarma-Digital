@@ -2,7 +2,7 @@
 
 <config>
     <Receptor>
-	<puerto>999</puerto>
+	<puerto>1000</puerto>
     </Receptor>
     <Servidor1>
 	<ip>192.168.0.14</ip>

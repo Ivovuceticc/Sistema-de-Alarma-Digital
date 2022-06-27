@@ -23,8 +23,8 @@ public class RegistroEvento {
         this.tipo = m[0];
         this.ip = m[1];
         this.puerto = m[2];
-        this.fechaYHora = m[3];
-        this.tiposDeSolicitud = m[4];
+        this.tiposDeSolicitud = m[3];
+        this.fechaYHora = m[4];
     }
 
     public String getTipo() {return tipo;}

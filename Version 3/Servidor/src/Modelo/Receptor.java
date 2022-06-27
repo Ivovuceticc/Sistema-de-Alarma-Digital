@@ -35,4 +35,15 @@ public class Receptor {
     public List<String> getTipoSolicitudes() {
         return tipoSolicitudes;
     }
+
+    public String getTipo()
+    {
+        return (tipoSolicitudes.contains("emergencia")?"1":"0") + (tipoSolicitudes.contains("incendio")?"1":"0") + (tipoSolicitudes.contains("policia")?"1":"0");
+    }
+
+    @Override
+    public String toString()
+    {
+        return ip + "#" + puerto + "#" + getTipo();
+    }
 }

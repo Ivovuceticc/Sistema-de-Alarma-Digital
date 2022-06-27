@@ -10,6 +10,6 @@
     </Servidor1>
     <Servidor2>
 	<ip>192.168.0.14</ip>
-	<puerto>1112</puerto>
+	<puerto>1211</puerto>
     </Servidor2>
 </config>

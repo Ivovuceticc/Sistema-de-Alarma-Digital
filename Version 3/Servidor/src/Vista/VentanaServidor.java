@@ -44,5 +44,9 @@ public class VentanaServidor extends JFrame implements IVistaServer{
     public void addActionListener(ActionListener listenner){
         this.addActionListener(listenner);
     }
-
+    @Override
+    public void setRol(String rol)
+    {
+        setTitle("Servidor - " + rol);
+    }
 }

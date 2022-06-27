@@ -1,0 +1,6 @@
+<?xml version = "1.0" encoding = "UTF-8" standalone = "no" ?>
+<informacion>
+    <puertoAlarma>1211</puertoAlarma>
+    <puertoMonitor>1212</puertoMonitor>
+    <puertoServidor>1213</puertoServidor>
+</informacion>

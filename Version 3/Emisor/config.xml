@@ -5,11 +5,11 @@
 	<ubicacion>Lab computacion - Consitucion 1234</ubicacion>
     </direccion>
     <Servidor1>
-	<ip>192.168.0.219</ip>
+	<ip>192.168.0.14</ip>
 	<puerto>1111</puerto>
     </Servidor1>
     <Servidor2>
-	<ip>192.168.0.219</ip>
-	<puerto>1112</puerto>
+	<ip>192.168.0.14</ip>
+	<puerto>1211</puerto>
     </Servidor2>
 </config>
